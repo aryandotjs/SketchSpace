@@ -1,18 +1,20 @@
 import React, { Dispatch, SetStateAction } from "react";
-import { drawInfiniteLine, drawLine, drawStroke } from "../drawing";
-import { Line, LineForgeometry, Point, Shape } from "./types";
+import { drawLine, drawStroke } from "../drawing";
+import { Line, LineForgeometry, Point, Shape, stylestroke } from "./types";
 import { nanoid } from "nanoid";
 
 
 
-export const linePointerDown = (point: Point, color: string, width: number): Line => {
+export const linePointerDown = (point: Point, color: string, width: number, style: stylestroke, opacity: number): Line => {
     return {
         id: nanoid(),
         type: "line",
         start: point,
         current: point,
         color,
-        width
+        width,
+        style,
+        opacity
     }
 }
 

@@ -39,17 +39,17 @@ export function ToggleToolbar({settool,tool}:{settool:Dispatch<SetStateAction<To
               <RectangleHorizontal />
             </ToggleGroupItem>
 
-            {/* <ToggleGroupItem onClick={()=>settool("Diamond")} value="Diamond" aria-label="Toggle strikethrough">
+            <ToggleGroupItem onClick={()=>settool("Diamond")} value="Diamond" aria-label="Toggle strikethrough">
               <Diamond/>
-            </ToggleGroupItem> */}
+            </ToggleGroupItem>
 
             <ToggleGroupItem onClick={()=>settool("Ellipse")} value="Ellipse" aria-label="Toggle italic">
               <Circle/>
             </ToggleGroupItem>
 
-            {/* <ToggleGroupItem onClick={()=>settool("Arrow")} value="Arrow" aria-label="Toggle strikethrough">
+            <ToggleGroupItem onClick={()=>settool("Arrow")} value="Arrow" aria-label="Toggle strikethrough">
               <ArrowRight/>
-            </ToggleGroupItem> */}
+            </ToggleGroupItem>
             
             <ToggleGroupItem onClick={()=>settool("Line")} value="Line" aria-label="Toggle strikethrough">
               <Minus/>

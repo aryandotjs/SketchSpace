@@ -1,17 +1,19 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { drawRectangle } from "../drawing";
-import { Point, Rectangle, Shape } from "./types";
+import { Point, Rectangle, Shape, stylestroke } from "./types";
 import { nanoid } from "nanoid";
 import { ispointOnLine } from "./line";
 
-export const rectanglePointerDown = (point: Point, color: string, width: number): Rectangle => {
+export const rectanglePointerDown = (point: Point, color: string, width: number, style: stylestroke, opacity: number): Rectangle => {
     return {
         id: nanoid(),
         type: "rectangle",
         start: point,
         current: point,
         color,
-        width
+        width,
+        style,
+        opacity
     }
 }
 

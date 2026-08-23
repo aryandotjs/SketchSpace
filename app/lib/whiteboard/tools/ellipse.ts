@@ -1,16 +1,18 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { drawEllipse } from "../drawing";
-import { Ellipse, Point, Shape } from "./types";
+import { Ellipse, Point, Shape, stylestroke } from "./types";
 import { nanoid } from "nanoid";
 
-export const ellipsePointerDown = (point: Point, color: string, width: number): Ellipse => {
+export const ellipsePointerDown = (point: Point, color: string, width: number, style: stylestroke, opacity: number): Ellipse => {
     return {
         id: nanoid(),
         type: "ellipse",
         start: point,
         current: point,
         color,
-        width
+        width,
+        style,
+        opacity
     }
 }
 

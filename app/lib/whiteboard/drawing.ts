@@ -1,10 +1,12 @@
-import type { Ellipse, Line, Point, Rectangle, Stroke } from "./tools/types";
+import { Arrow, Diamond, stylestroke, type Ellipse, type Line, type Point, type Rectangle, type Stroke } from "./tools/types";
 
 export function drawStroke(ctx: CanvasRenderingContext2D, stroke: Stroke) {
 
-    const { points, color, width } = stroke
+    const { points, color, width, style, opacity } = stroke
     if (points.length === 0) return
+    ctx.setLineDash(style === stylestroke.ExtraDashed ? [2, 9] : style === stylestroke.Dashed ? [8, 10] : [0, 0]);
     ctx.beginPath()
+    ctx.globalAlpha = Number((opacity * 0.01).toFixed(1))
     ctx.strokeStyle = color
     ctx.lineWidth = width
     ctx.lineJoin = "round"
@@ -32,11 +34,12 @@ export function drawStroke(ctx: CanvasRenderingContext2D, stroke: Stroke) {
 }
 export function drawRectangle(ctx: CanvasRenderingContext2D, rectangle: Rectangle) {
 
-    const { start, current, color, width } = rectangle
+    const { start, current, color, width, style, opacity } = rectangle
 
     if (start === current) return
-
+    ctx.setLineDash(style === stylestroke.ExtraDashed ? [2, 9] : style === stylestroke.Dashed ? [8, 10] : [0, 0]);
     ctx.beginPath()
+    ctx.globalAlpha = Number((opacity * 0.01).toFixed(1))
     ctx.strokeStyle = color
     ctx.lineWidth = width
     ctx.lineJoin = "round"
@@ -50,11 +53,34 @@ export function drawRectangle(ctx: CanvasRenderingContext2D, rectangle: Rectangl
 
     ctx.stroke()
 }
+export function drawdiamond(ctx: CanvasRenderingContext2D, diamond: Diamond) {
+
+    const { start, current, color, width, style, opacity } = diamond
+
+    if (start === current) return
+    ctx.setLineDash(style === stylestroke.ExtraDashed ? [2, 9] : style === stylestroke.Dashed ? [8, 10] : [0, 0]);
+    ctx.beginPath()
+    ctx.globalAlpha = Number((opacity * 0.01).toFixed(1))
+    ctx.strokeStyle = color
+    ctx.lineWidth = width
+    ctx.lineJoin = "round"
+    ctx.lineCap = "round"
+
+    ctx.moveTo((current.x + start.x) / 2, start.y)
+    ctx.lineTo(current.x, (current.y + start.y) / 2)
+    ctx.lineTo((current.x + start.x) / 2, current.y)
+    ctx.lineTo(start.x, (current.y + start.y) / 2)
+    ctx.closePath()
+
+    ctx.stroke()
+}
 export function drawEllipse(ctx: CanvasRenderingContext2D, ellipse: Ellipse) {
 
-    const { start, current, color, width } = ellipse
+    const { start, current, color, width, style, opacity } = ellipse
     if (start === current) return
+    ctx.setLineDash(style === stylestroke.ExtraDashed ? [2, 9] : style === stylestroke.Dashed ? [8, 10] : [0, 0]);
     ctx.beginPath()
+    ctx.globalAlpha = Number((opacity * 0.01).toFixed(1))
     ctx.strokeStyle = color
     ctx.lineWidth = width
     ctx.lineJoin = "round"
@@ -82,10 +108,11 @@ export function drawEllipse(ctx: CanvasRenderingContext2D, ellipse: Ellipse) {
     ctx.stroke()
 }
 export function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
-    const { start, current, color, width } = line
+    let { start, current, color, width, style, opacity } = line
     if (start === current) return
-
+    ctx.setLineDash(style === stylestroke.ExtraDashed ? [2, 9] : style === stylestroke.Dashed ? [8, 10] : [0, 0]);
     ctx.beginPath()
+    ctx.globalAlpha = Number((opacity * 0.01).toFixed(1))
     ctx.strokeStyle = color
     ctx.lineWidth = width
     ctx.lineJoin = "round"
@@ -96,12 +123,26 @@ export function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
 
     ctx.stroke()
 }
-export function drawArrow(ctx: CanvasRenderingContext2D, rectangle: Rectangle) {
+export function drawArrow(ctx: CanvasRenderingContext2D, arrow: Arrow) {
 
-    const { start, current, color, width } = rectangle
+    const { start, current, color, width, style, opacity } = arrow
     if (start === current) return
 
+    const radian = Math.atan2(current.y - start.y, current.x - start.x)
+    const angle = radian + Math.PI / 9
+    const angle2 = radian - Math.PI / 9
+
+    const arrowLength = 25
+
+    const headX = current.x - arrowLength * Math.cos(angle)
+    const headY = current.y - arrowLength * Math.sin(angle)
+
+    const headX2 = current.x - arrowLength * Math.cos(angle2)
+    const headY2 = current.y - arrowLength * Math.sin(angle2)
+
+    ctx.setLineDash(style === stylestroke.ExtraDashed ? [2, 9] : style === stylestroke.Dashed ? [8, 10] : [0, 0]);
     ctx.beginPath()
+    ctx.globalAlpha = Number((opacity * 0.01).toFixed(1))
     ctx.strokeStyle = color
     ctx.lineWidth = width
     ctx.lineJoin = "round"
@@ -110,30 +151,11 @@ export function drawArrow(ctx: CanvasRenderingContext2D, rectangle: Rectangle) {
     ctx.moveTo(start.x, start.y)
     ctx.lineTo(current.x, current.y)
 
+    ctx.moveTo(current.x, current.y)
+    ctx.lineTo(headX, headY)
+
+    ctx.moveTo(current.x, current.y)
+    ctx.lineTo(headX2, headY2)
+
     ctx.stroke()
-}
-
-export function drawInfiniteLine(
-    ctx: CanvasRenderingContext2D,
-    line: Line
-) {
-    const dx = line.current.x - line.start.x;
-    const dy = line.current.y - line.start.y;
-
-    ctx.beginPath();
-
-    ctx.strokeStyle = "#FF0000";
-    ctx.lineWidth = 2;
-
-    ctx.moveTo(
-        line.start.x - dx * 100,
-        line.start.y - dy * 100
-    );
-
-    ctx.lineTo(
-        line.start.x + dx * 100,
-        line.start.y + dy * 100
-    );
-
-    ctx.stroke();
 }

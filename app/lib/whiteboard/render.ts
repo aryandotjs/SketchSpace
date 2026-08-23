@@ -1,4 +1,4 @@
-import { drawArrow, drawEllipse, drawLine, drawRectangle, drawStroke } from "./drawing";
+import { drawArrow, drawdiamond, drawEllipse, drawLine, drawRectangle, drawStroke } from "./drawing";
 import { Arrow, Ellipse, Line, Rectangle, Shape, Stroke } from "./tools/types";
 
 
@@ -14,8 +14,14 @@ export const renderAll = (
         if (sp.type === "rectangle") {
             drawRectangle(ctx, sp)
         }
+        if (sp.type === "Diamond") {
+            drawdiamond(ctx, sp)
+        }
         if (sp.type === "line") {
             drawLine(ctx, sp)
+        }
+        if (sp.type === "arrow") {
+            drawArrow(ctx, sp)
         }
         if (sp.type === "ellipse") {
             drawEllipse(ctx, sp)

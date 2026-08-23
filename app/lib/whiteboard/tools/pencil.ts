@@ -1,17 +1,19 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { drawStroke } from "../drawing";
-import { Point, Shape, Stroke } from "./types";
+import { Point, Shape, Stroke, stylestroke } from "./types";
 import { nanoid } from "nanoid";
 
 
 
-export const pencilPointerDown = (point: Point, color: string, width: number): Stroke => {
+export const pencilPointerDown = (point: Point, color: string, width: number, style: stylestroke, opacity: number): Stroke => {
     return {
         id: nanoid(),
         type: "stroke",
         points: [point],
         color,
-        width
+        width,
+        style,
+        opacity
     }
 }
 

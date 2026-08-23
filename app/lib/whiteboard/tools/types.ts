@@ -10,6 +10,8 @@ export type Stroke = {
     points: Point[];
     color: string;
     width: number;
+    style: stylestroke,
+    opacity: number
 };
 export type Rectangle = {
     id: string,
@@ -19,6 +21,20 @@ export type Rectangle = {
     current: Point
     color: string
     width: number
+    style: stylestroke,
+    opacity: number
+
+};
+export type Diamond = {
+    id: string,
+    type: "Diamond";
+    start: Point
+    current: Point
+    color: string
+    width: number
+    style: stylestroke,
+    opacity: number
+
 };
 export type Arrow = {
     id: string,
@@ -27,7 +43,9 @@ export type Arrow = {
     start: Point
     current: Point
     color: string
-    width: number
+    style: stylestroke,
+    width: number,
+    opacity: number
 };
 export type Line = {
     id: string,
@@ -35,8 +53,11 @@ export type Line = {
     start: Point
     current: Point
     color: string
-    width: number
+    width: number,
+    style: stylestroke,
+    opacity: number
 };
+//thi sone is for the calculation line in is online thing dnt forget 
 export type LineForgeometry = {
     start: Point
     current: Point
@@ -50,6 +71,9 @@ export type Ellipse = {
     current: Point
     color: string
     width: number
+    style: stylestroke
+    opacity: number
+
 };
 
 
@@ -58,5 +82,13 @@ export type Shape =
     | Rectangle
     | Ellipse
     | Arrow
-    | Line;
+    | Line
+    | Diamond
+    ;
 
+
+export enum stylestroke {
+    Normal = "Normal",
+    Dashed = "Dashed",
+    ExtraDashed = "ExtraDashed"
+}

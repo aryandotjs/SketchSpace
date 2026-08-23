@@ -3,7 +3,7 @@ import { Minus } from "lucide-react"
 import { Dispatch, SetStateAction } from "react"
 
 
-const size:string[] = ["1","1.5","3"]
+const size:string[] = ["1","2.5","4"]
 
 export function WidthPick({
     width,
@@ -22,7 +22,7 @@ export function WidthPick({
                      onClick={()=>setwidth(c)}
                      style={{backgroundColor : c}}
                      className={`h-7 w-7 rounded-sm  ${width == c ? "bg-[#F5F5F5]" : ""} flex justify-center items-center`}>
-                        <Minus strokeWidth={c === "1" ? 1 : c === "1.5" ? 2 : c === "3" ? 3 : "1" }></Minus>
+                        <Minus strokeWidth={c === "1" ? 1 : c === "2.5" ? 2 : c === "4" ? 3 : "1" }></Minus>
                      </div>
                    })}
                   

@@ -4,6 +4,8 @@ import { ispointOnLine } from "./line";
 import { Point, Shape } from "./types";
 import { ispointInReactangle } from "./rectangle";
 import { ispointonEllipse } from "./ellipse";
+import { ispointInDiamond } from "./diamond";
+import { ispointOnarrow } from "./arrow";
 
 
 
@@ -46,12 +48,25 @@ export const eraserHandler = (
             }
         }
 
+        if (s.type === "Diamond") {
+            if (ispointInDiamond(previousPoint, point, s)) {
+                erasedset.add(s.id)
+                updated = true
+            }
+        }
+        if (s.type === "arrow") {
+            if (ispointOnarrow(previousPoint, point, s)) {
+                erasedset.add(s.id)
+                updated = true
+            }
+        }
+
     })
 
     if (updated) {
         allEraseshapes.current = Array.from(erasedset)
         const updatedShapes = shapes.map((shape) => {
-            return erasedset.has(shape.id) ? { ...shape, color: "#D0D0D0" } : shape
+            return erasedset.has(shape.id) ? { ...shape, opacity: 10 } : shape
         });
         renderAll(ctx, updatedShapes, rect)
     }
