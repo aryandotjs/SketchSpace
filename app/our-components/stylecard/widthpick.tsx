@@ -1,0 +1,31 @@
+import { Label } from "@/components/ui/label"
+import { Minus } from "lucide-react"
+import { Dispatch, SetStateAction } from "react"
+
+
+const size:string[] = ["1","1.5","3"]
+
+export function WidthPick({
+    width,
+    setwidth
+}:{
+    width:string,
+    setwidth:Dispatch<SetStateAction<string>>
+}){
+     return <div className="gap-2.5 flex flex-col ">
+               <Label className="text-[10px] font-normal ">Stroke Width</Label>
+               <div className="flex gap-2.5 items-center">
+                   
+                   {size.map((c)=>{
+                     return <div 
+                     key={c}
+                     onClick={()=>setwidth(c)}
+                     style={{backgroundColor : c}}
+                     className={`h-7 w-7 rounded-sm  ${width == c ? "bg-[#F5F5F5]" : ""} flex justify-center items-center`}>
+                        <Minus strokeWidth={c === "1" ? 1 : c === "1.5" ? 2 : c === "3" ? 3 : "1" }></Minus>
+                     </div>
+                   })}
+                  
+               </div>
+            </div>
+}

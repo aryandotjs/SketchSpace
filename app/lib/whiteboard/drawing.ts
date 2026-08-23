@@ -1,4 +1,4 @@
-import type { Point, Rectangle, Stroke } from "./types";
+import type { Ellipse, Line, Point, Rectangle, Stroke } from "./tools/types";
 
 export function drawStroke(ctx: CanvasRenderingContext2D, stroke: Stroke) {
 
@@ -11,12 +11,24 @@ export function drawStroke(ctx: CanvasRenderingContext2D, stroke: Stroke) {
     ctx.lineCap = "round"
 
     ctx.moveTo(points[0].x, points[0].y)
-
-    for (let i = 1; i < points.length; i++) {
+    for (let i = 0; i < points.length; i++) {
         ctx.lineTo(points[i].x, points[i].y)
     }
-
     ctx.stroke()
+    // const { points, color, width } = stroke
+    // if (points.length === 0) return
+    // ctx.beginPath()
+    // ctx.strokeStyle = "#FF0000"
+    // ctx.lineWidth = 6
+    // ctx.lineJoin = "round"
+    // ctx.lineCap = "round"
+    // for (let i = 0; i < points.length; i++) {
+    //     ctx.moveTo(points[i].x, points[i].y)
+    //     // ctx.lineTo(points[i].x, points[i].y)
+    //     ctx.lineTo(points[i].x, points[i].y)
+    //     // ctx.lineTo(points[i].x, points[i].y)
+    // }
+    // ctx.stroke()
 }
 export function drawRectangle(ctx: CanvasRenderingContext2D, rectangle: Rectangle) {
 
@@ -38,10 +50,9 @@ export function drawRectangle(ctx: CanvasRenderingContext2D, rectangle: Rectangl
 
     ctx.stroke()
 }
+export function drawEllipse(ctx: CanvasRenderingContext2D, ellipse: Ellipse) {
 
-export function drawEllipse(ctx: CanvasRenderingContext2D, rectangle: Rectangle) {
-
-    const { start, current, color, width } = rectangle
+    const { start, current, color, width } = ellipse
     if (start === current) return
     ctx.beginPath()
     ctx.strokeStyle = color
@@ -70,6 +81,21 @@ export function drawEllipse(ctx: CanvasRenderingContext2D, rectangle: Rectangle)
 
     ctx.stroke()
 }
+export function drawLine(ctx: CanvasRenderingContext2D, line: Line) {
+    const { start, current, color, width } = line
+    if (start === current) return
+
+    ctx.beginPath()
+    ctx.strokeStyle = color
+    ctx.lineWidth = width
+    ctx.lineJoin = "round"
+    ctx.lineCap = "round"
+
+    ctx.moveTo(start.x, start.y)
+    ctx.lineTo(current.x, current.y)
+
+    ctx.stroke()
+}
 export function drawArrow(ctx: CanvasRenderingContext2D, rectangle: Rectangle) {
 
     const { start, current, color, width } = rectangle
@@ -85,4 +111,29 @@ export function drawArrow(ctx: CanvasRenderingContext2D, rectangle: Rectangle) {
     ctx.lineTo(current.x, current.y)
 
     ctx.stroke()
+}
+
+export function drawInfiniteLine(
+    ctx: CanvasRenderingContext2D,
+    line: Line
+) {
+    const dx = line.current.x - line.start.x;
+    const dy = line.current.y - line.start.y;
+
+    ctx.beginPath();
+
+    ctx.strokeStyle = "#FF0000";
+    ctx.lineWidth = 2;
+
+    ctx.moveTo(
+        line.start.x - dx * 100,
+        line.start.y - dy * 100
+    );
+
+    ctx.lineTo(
+        line.start.x + dx * 100,
+        line.start.y + dy * 100
+    );
+
+    ctx.stroke();
 }
