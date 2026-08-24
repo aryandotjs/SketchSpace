@@ -50,20 +50,20 @@ export function StyleCard(
 
             <ColorPick setcolor={setcolor} color={color}></ColorPick> 
             <BackgroundPick setbg={setbg} bg={bg}></BackgroundPick>
-            <Fillpick setwidth={setwidth} width={width}></Fillpick>
+            {/* <Fillpick setwidth={setwidth} width={width}></Fillpick> */}
             <WidthPick setwidth={setwidth} width={width}></WidthPick>
             <StrokeStylePick  setstyleofline={setstyleofline} styleofline={styleofline}></StrokeStylePick>
 
-             { tool !== "Pencil" ?
+             {/* { tool !== "Pencil" ?
             <BorderPick setwidth={setwidth} width={width}></BorderPick>
-            : ""}
+            : ""} */}
                
             <OpacityPick  setopacity={setopacity} opacity={opacity}></OpacityPick>
 
             
-            { tool !== "Pencil" && tool !== "Ellipse" ? 
-            <ActionPick setwidth={setwidth} width={width}></ActionPick> : " "
-            }
+            {/* { tool !== "Pencil" && tool !== "Ellipse" ?  */}
+            <ActionPick setwidth={setwidth} width={width}></ActionPick> 
+            {/* // : " "} */}
                
           </Card>
      </div>

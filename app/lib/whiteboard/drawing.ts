@@ -127,18 +127,31 @@ export function drawArrow(ctx: CanvasRenderingContext2D, arrow: Arrow) {
 
     const { start, current, color, width, style, opacity } = arrow
     if (start === current) return
+    const dx = current.x - start.x
+    const dy = current.y - start.y
 
-    const radian = Math.atan2(current.y - start.y, current.x - start.x)
-    const angle = radian + Math.PI / 9
-    const angle2 = radian - Math.PI / 9
+    const mainlineradian = Math.atan2(dx, dy)
 
-    const arrowLength = 25
+    const newlineradian = mainlineradian + Math.PI / 9
+    const newlineradian2 = mainlineradian - Math.PI / 9
 
-    const headX = current.x - arrowLength * Math.cos(angle)
-    const headY = current.y - arrowLength * Math.sin(angle)
+    const ax = current.x - 25 * Math.sin(newlineradian)
+    const ay = current.y - 25 * Math.cos(newlineradian)
 
-    const headX2 = current.x - arrowLength * Math.cos(angle2)
-    const headY2 = current.y - arrowLength * Math.sin(angle2)
+    const bx = current.x - 25 * Math.sin(newlineradian2)
+    const by = current.y - 25 * Math.cos(newlineradian2)
+
+    // const radian = Math.atan2(current.y - start.y, current.x - start.x)
+    // const angle = radian + Math.PI / 9
+    // const angle2 = radian - Math.PI / 9
+
+    // const arrowLength = 25
+
+    // const headX = current.x - arrowLength * Math.cos(angle)
+    // const headY = current.y - arrowLength * Math.sin(angle)
+
+    // const headX2 = current.x - arrowLength * Math.cos(angle2)
+    // const headY2 = current.y - arrowLength * Math.sin(angle2)
 
     ctx.setLineDash(style === stylestroke.ExtraDashed ? [2, 9] : style === stylestroke.Dashed ? [8, 10] : [0, 0]);
     ctx.beginPath()
@@ -152,10 +165,10 @@ export function drawArrow(ctx: CanvasRenderingContext2D, arrow: Arrow) {
     ctx.lineTo(current.x, current.y)
 
     ctx.moveTo(current.x, current.y)
-    ctx.lineTo(headX, headY)
+    ctx.lineTo(ax, ay)
 
     ctx.moveTo(current.x, current.y)
-    ctx.lineTo(headX2, headY2)
+    ctx.lineTo(bx, by)
 
     ctx.stroke()
 }
