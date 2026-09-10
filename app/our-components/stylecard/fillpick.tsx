@@ -7,11 +7,11 @@ const size:string[] = ["hatch","crosshatch","solid"]
 
 export function Fillpick
 ({
-    width,
-    setwidth
+    strokeWidth,
+    setstrokeWidth
 }:{
-    width:string,
-    setwidth:Dispatch<SetStateAction<string>>
+    strokeWidth:string,
+    setstrokeWidth:Dispatch<SetStateAction<string>>
 }){
      return <div className="gap-2.5 flex flex-col ">
                <Label className="text-[10px] font-normal ">Fill</Label>
@@ -20,9 +20,9 @@ export function Fillpick
                    {size.map((c)=>{
                      return <div 
                      key={c}
-                     onClick={()=>setwidth(c)}
+                     onClick={()=>setstrokeWidth(c)}
                      style={{backgroundColor : c}}
-                     className={`h-7 w-7 rounded-sm  ${width == c ? "bg-[#F5F5F5]" : ""} flex justify-center items-center`}>
+                     className={`h-7 w-7 rounded-sm  ${strokeWidth == c ? "bg-[#F5F5F5]" : ""} flex justify-center items-center`}>
                         {c === "hatch" ?
                         <div className="h-3.5 w-3.5 border border-black rounded  bg-[repeating-linear-gradient(135deg,#000,#000_1px,transparent_1px,transparent_2.5px)] "></div>
                         : c === "crosshatch" ? 

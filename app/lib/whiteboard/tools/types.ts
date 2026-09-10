@@ -1,94 +1,138 @@
+export type ElementType =
+    | "freedraw"
+    | "rectangle"
+    | "ellipse"
+    | "diamond"
+    | "line"
+    | "arrow"
+    | "text"
+    | "image"
+    | "frame";
+
 export type Point = {
+    x: number,
+    y: number
+}
+
+export enum StrokeStyle {
+    Solid = "solid",
+    Dashed = "dashed",
+    Dotted = "dotted",
+}
+
+export type ElementStyle = {
+    strokeColor: string,
+    backgroundColor: string,
+    strokeWidth: number,
+    strokeStyle: StrokeStyle,
+    opacity: number
+}
+
+export type BaseElement = {
+    id: string;
+    type: ElementType;
+
     x: number;
     y: number;
-};
 
-export type Stroke = {
-    id: string,
-
-    type: "stroke";
-    points: Point[];
-    color: string;
     width: number;
-    style: stylestroke,
-    opacity: number
+    height: number;
+
+    angle: number;
+
+    strokeColor: string;
+    backgroundColor: string;
+    strokeWidth: number;
+    strokeStyle: StrokeStyle;
+    opacity: number;
+
+    locked: boolean;
 };
-export type Rectangle = {
-    id: string,
 
-    type: "rectangle";
-    start: Point
-    current: Point
-    color: string
-    width: number
-    style: stylestroke,
-    opacity: number
+export type FreedrawElement = BaseElement & {
+    type: "freedraw",
+    points: Point[]
+    SnapshotPoints: Point[]
+}
 
-};
-export type Diamond = {
-    id: string,
-    type: "Diamond";
-    start: Point
-    current: Point
-    color: string
-    width: number
-    style: stylestroke,
-    opacity: number
+export type RectangleElement = BaseElement & {
+    type: "rectangle"
+}
 
-};
-export type Arrow = {
-    id: string,
+export type EllipseElement = BaseElement & {
+    type: "ellipse"
+}
 
-    type: "arrow";
-    start: Point
-    current: Point
-    color: string
-    style: stylestroke,
+export type DiamondElement = BaseElement & {
+    type: "diamond"
+}
+
+export type LineElement = BaseElement & {
+    type: "line",
+
+}
+export type ArrowElement = BaseElement & {
+    type: "arrow",
+}
+
+export type TextElement = BaseElement & {
+    type: "text",
+
+    text: string,
+    fontFamily: string,
+    fontSize: number
+
+    textAlign: "left" | "center" | "right"
+    verticalAlign: "top" | "center" | "bottom"
+}
+
+export type ImageElement = BaseElement & {
+    type: "image",
+
+    fieldId: string
+
+    status: "pending" | "loading" | "error"
+
+    height: number,
     width: number,
-    opacity: number
-};
-export type Line = {
-    id: string,
-    type: "line";
-    start: Point
-    current: Point
-    color: string
-    width: number,
-    style: stylestroke,
-    opacity: number
-};
-//thi sone is for the calculation line in is online thing dnt forget 
-export type LineForgeometry = {
-    start: Point
-    current: Point
-};
+}
 
-export type Ellipse = {
-    id: string,
+export type FrameElement = BaseElement & {
+    type: "frame",
 
-    type: "ellipse";
-    start: Point
-    current: Point
-    color: string
-    width: number
-    style: stylestroke
-    opacity: number
+    name: string,
+    childIds: string[]
+}
 
-};
+export type Element = RectangleElement
+    | EllipseElement
+    | DiamondElement
+    | LineElement
+    | ArrowElement
+    | FreedrawElement
+    | TextElement
+    | ImageElement
+    | FrameElement;
 
 
-export type Shape =
-    | Stroke
-    | Rectangle
-    | Ellipse
-    | Arrow
-    | Line
-    | Diamond
-    ;
 
+export type resizeEleObjType = {
+    Element: Element,
+    index: number | null,
+    top: number,
+    bottom: number,
+    left: number,
+    right: number,
+    movement: "Still" | "Moved"
+    contactPoint: "TopLeftSquare" | "TopRightSquare" | "BottomLeftSquare" | "BottomRightSquare" |
+    "TopSide" | "BottomSide" | "LeftSide" | "RightSide" | "TopCircle" | "LeftCircle" | "RightCircle" | "none"
+}
 
-export enum stylestroke {
-    Normal = "Normal",
-    Dashed = "Dashed",
-    ExtraDashed = "ExtraDashed"
+export type MoveEleObjType = {
+    point: Point
+    Element: Element,
+    index: number | null,
+    fromTop: number,
+    fromLeft: number,
+    movement: "Still" | "Moved"
 }

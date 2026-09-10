@@ -5,11 +5,11 @@ import { Dispatch, SetStateAction } from "react"
 const size:string[] = ["1","1.5"]
 
 export function BorderPick({
-    width,
-    setwidth
+    strokeWidth,
+    setstrokeWidth
 }:{
-    width:string,
-    setwidth:Dispatch<SetStateAction<string>>
+    strokeWidth:string,
+    setstrokeWidth:Dispatch<SetStateAction<string>>
 }){
      return <div className="gap-2.5 flex flex-col ">
                <Label className="text-[10px] font-normal ">Edges</Label>
@@ -18,9 +18,9 @@ export function BorderPick({
                    {size.map((c)=>{
                      return <div 
                      key={c}
-                     onClick={()=>setwidth(c)}
+                     onClick={()=>setstrokeWidth(c)}
                      style={{backgroundColor : c}}
-                     className={`h-7 w-7 rounded-sm  ${width == c ? "bg-[#F5F5F5]" : ""} flex justify-center items-center`}>
+                     className={`h-7 w-7 rounded-sm  ${strokeWidth == c ? "bg-[#F5F5F5]" : ""} flex justify-center items-center`}>
                             {c === "1" ? <Square strokeWidth={1.5} size={14}></Square> : <SquareRoundCorner strokeWidth={1.5} size={14}></SquareRoundCorner>}
                      </div>
                    })}

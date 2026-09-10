@@ -5,41 +5,46 @@ import { BackgroundPick } from "./backgroundpick";
 import { WidthPick } from "./widthpick";
 import { OpacityPick } from "./opacitypick";
 import { StrokeStylePick } from "./strokestyle";
-import { BorderPick } from "./borderpick";
 import { ActionPick } from "./actions";
+import { StrokeStyle } from "@/app/lib/whiteboard/tools/types";
 import { Fillpick } from "./fillpick";
-import { stylestroke } from "@/app/lib/whiteboard/tools/types";
+import { BorderPick } from "./borderpick";
 
 
 
 export function StyleCard(
    {  
       tool,
-      color,
-      setcolor,
 
-      styleofline,
-      setstyleofline,
+      strokeColor,
+      setStrokecolor,
 
-      bg,
-      setbg,
-      setwidth,
-      width,
+      strokeStyle,
+      setstrokeStyle,
+
+      backgroundcolor,
+      setbackgroundcolor,
+
+      setstrokeWidth,
+      strokeWidth,
+      
       setopacity,
       opacity
    } 
    :{ 
       tool:string
-      color:string,
-      setcolor:Dispatch<SetStateAction<string>>
 
-      styleofline:stylestroke,
-      setstyleofline:Dispatch<SetStateAction<stylestroke>>
+      strokeColor:string,
+      setStrokecolor:Dispatch<SetStateAction<string>>
 
-      bg:string,
-      setbg:Dispatch<SetStateAction<string>>
-      width:string,
-      setwidth:Dispatch<SetStateAction<string>>
+      strokeStyle:StrokeStyle,
+      setstrokeStyle:Dispatch<SetStateAction<StrokeStyle>>
+
+      backgroundcolor:string,
+      setbackgroundcolor:Dispatch<SetStateAction<string>>
+
+      strokeWidth:string,
+      setstrokeWidth:Dispatch<SetStateAction<string>>
 
       opacity:number,
       setopacity:Dispatch<SetStateAction<number>>
@@ -48,21 +53,21 @@ export function StyleCard(
      return <div className=" w-50 absolute left-4 top-20 ">
           <Card  className="w-full max-w-sm px-2.5">
 
-            <ColorPick setcolor={setcolor} color={color}></ColorPick> 
-            <BackgroundPick setbg={setbg} bg={bg}></BackgroundPick>
-            {/* <Fillpick setwidth={setwidth} width={width}></Fillpick> */}
-            <WidthPick setwidth={setwidth} width={width}></WidthPick>
-            <StrokeStylePick  setstyleofline={setstyleofline} styleofline={styleofline}></StrokeStylePick>
+            <ColorPick setcolor={setStrokecolor} color={strokeColor}></ColorPick> 
+            {/* <BackgroundPick setbg={setbackgroundcolor} bg={backgroundcolor}></BackgroundPick> */}
 
-             {/* { tool !== "Pencil" ?
-            <BorderPick setwidth={setwidth} width={width}></BorderPick>
-            : ""} */}
+            {/* <Fillpick setstrokeWidth={setstrokeWidth} strokeWidth={strokeWidth}></Fillpick>  */}
+
+            <WidthPick setstrokeWidth={setstrokeWidth} strokeWidth={strokeWidth}></WidthPick>
+            <StrokeStylePick  setstrokeStyle={setstrokeStyle} strokeStyle={strokeStyle}></StrokeStylePick>
+
+            {/* <BorderPick setstrokeWidth={setstrokeWidth} strokeWidth={strokeWidth}></BorderPick> */}
                
             <OpacityPick  setopacity={setopacity} opacity={opacity}></OpacityPick>
 
             
             {/* { tool !== "Pencil" && tool !== "Ellipse" ?  */}
-            <ActionPick setwidth={setwidth} width={width}></ActionPick> 
+            <ActionPick setstrokeWidth={setstrokeWidth} strokeWidth={strokeWidth}></ActionPick> 
             {/* // : " "} */}
                
           </Card>

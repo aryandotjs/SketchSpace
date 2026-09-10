@@ -1,18 +1,14 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { renderAll } from "../render";
 import { ispointOnLine } from "./line";
-import { Point, Shape } from "./types";
-import { ispointInReactangle } from "./rectangle";
-import { ispointonEllipse } from "./ellipse";
-import { ispointInDiamond } from "./diamond";
-import { ispointOnarrow } from "./arrow";
+import { Element, Point } from "./types";
 
 
 
 export const eraserHandler = (
     previousPointRef: React.RefObject<Point | null>,
-    allEraseshapes: React.RefObject<string[] | null>,
-    shapes: Shape[],
+    ErasedElementIds: React.RefObject<string[] | null>,
+    Elements: Element[],
     point: Point,
     ctx: CanvasRenderingContext2D,
     rect: DOMRect
@@ -20,53 +16,54 @@ export const eraserHandler = (
 
     const previousPoint = previousPointRef.current;
     if (!previousPoint) { return }
-    const erasedset = new Set(allEraseshapes.current)
+    const erasedset = new Set(ErasedElementIds.current)
     let updated = false
 
-    shapes.forEach((s) => {
+    Elements.forEach((El) => {
 
-        if (s.type === "line") {
-            if (!erasedset.has(s.id)) {
-                if (ispointOnLine(previousPoint, point, s)) {
-                    erasedset.add(s.id)
+        if (El.type === "line") {
+            if (!erasedset.has(El.id)) {
+                if (ispointOnLine(previousPoint, point, El)) {
+                    console.log("yes")
+                    erasedset.add(El.id)
                     updated = true
                 }
             }
         }
 
-        if (s.type === "rectangle") {
-            if (ispointInReactangle(previousPoint, point, s)) {
-                erasedset.add(s.id)
-                updated = true
-            }
-        }
+        // if (s.type === "rectangle") {
+        //     if (ispointInReactangle(previousPoint, point, s)) {
+        //         erasedset.add(s.id)
+        //         updated = true
+        //     }
+        // }
 
-        if (s.type === "ellipse") {
-            if (ispointonEllipse(previousPoint, point, s)) {
-                erasedset.add(s.id)
-                updated = true
-            }
-        }
+        // if (s.type === "ellipse") {
+        //     if (ispointonEllipse(previousPoint, point, s)) {
+        //         erasedset.add(s.id)
+        //         updated = true
+        //     }
+        // }
 
-        if (s.type === "Diamond") {
-            if (ispointInDiamond(previousPoint, point, s)) {
-                erasedset.add(s.id)
-                updated = true
-            }
-        }
-        if (s.type === "arrow") {
-            if (ispointOnarrow(previousPoint, point, s)) {
-                erasedset.add(s.id)
-                updated = true
-            }
-        }
+        // if (s.type === "Diamond") {
+        //     if (ispointInDiamond(previousPoint, point, s)) {
+        //         erasedset.add(s.id)
+        //         updated = true
+        //     }
+        // }
+        // if (s.type === "arrow") {
+        //     if (ispointOnarrow(previousPoint, point, s)) {
+        //         erasedset.add(s.id)
+        //         updated = true
+        //     }
+        // }
 
     })
 
     if (updated) {
-        allEraseshapes.current = Array.from(erasedset)
-        const updatedShapes = shapes.map((shape) => {
-            return erasedset.has(shape.id) ? { ...shape, opacity: 10 } : shape
+        ErasedElementIds.current = Array.from(erasedset)
+        const updatedShapes = Elements.map((El) => {
+            return erasedset.has(El.id) ? { ...El, opacity: 10 } : El
         });
         renderAll(ctx, updatedShapes, rect)
     }
@@ -79,18 +76,18 @@ export const eraserHandler = (
 export const eraserPointerUp = (
     previousPointRef: React.RefObject<Point | null>,
     allEraseshapes: React.RefObject<string[] | null>,
-    setshapes: Dispatch<SetStateAction<Shape[]>>,
-    shapes: Shape[]
+    setElements: Dispatch<SetStateAction<Element[]>>,
+    Elements: Element[]
 ) => {
 
     if (!allEraseshapes.current) return
-    const removedArr = shapes.filter((shape) => {
-        if (allEraseshapes.current?.find((a) => a == shape.id)) {
+    const removedArr = Elements.filter((El) => {
+        if (allEraseshapes.current?.find((a) => a == El.id)) {
             return false
         }
         return true
     })
-    setshapes(removedArr)
+    setElements(removedArr)
     previousPointRef.current = null
     allEraseshapes.current = null
 }

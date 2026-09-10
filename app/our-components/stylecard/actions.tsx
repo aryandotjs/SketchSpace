@@ -5,11 +5,11 @@ import { Dispatch, SetStateAction } from "react"
 
 
 export function ActionPick({
-    width,
-    setwidth
+    strokeWidth,
+    setstrokeWidth
 }:{
-    width:string,
-    setwidth:Dispatch<SetStateAction<string>>
+    strokeWidth:string,
+    setstrokeWidth:Dispatch<SetStateAction<string>>
 }){
      return <div className="gap-2.5 flex flex-col ">
                <Label className="text-[10px] font-normal ">Actions</Label>
