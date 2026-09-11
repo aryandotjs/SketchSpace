@@ -90,6 +90,9 @@ export const cursorPointerMove = (
 
 export const cursorPointerUp = (Elements: Element[], setElements: Dispatch<SetStateAction<Element[]>>, curruntResizeElement: React.RefObject<resizeEleObjType | null>, curruntMoveElement: React.RefObject<MoveEleObjType | null>) => {
     if (curruntResizeElement.current && curruntResizeElement.current.movement === "Moved") {
+        if (curruntResizeElement.current.Element.type === "freedraw") {
+            curruntResizeElement.current.Element.SnapshotPoints = curruntResizeElement.current.Element.points.map(a => ({ ...a }))
+        }
         const newarr = [...Elements]
         if (curruntResizeElement.current.index != null) {
             newarr.splice(curruntResizeElement.current.index, 0, curruntResizeElement.current.Element)
@@ -97,6 +100,9 @@ export const cursorPointerUp = (Elements: Element[], setElements: Dispatch<SetSt
         }
     }
     if (curruntMoveElement.current && curruntMoveElement.current.movement === "Moved") {
+        if (curruntMoveElement.current.Element.type === "freedraw") {
+            curruntMoveElement.current.Element.SnapshotPoints = curruntMoveElement.current.Element.points.map(a => ({ ...a }))
+        }
         const newarr = [...Elements]
         if (curruntMoveElement.current.index != null) {
             newarr.splice(curruntMoveElement.current.index, 0, curruntMoveElement.current.Element)

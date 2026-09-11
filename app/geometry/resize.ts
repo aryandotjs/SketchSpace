@@ -1,5 +1,5 @@
 import React, { Dispatch, SetStateAction } from "react"
-import { Element, MoveEleObjType, Point, resizeEleObjType } from "../lib/whiteboard/tools/types"
+import { Element, FreedrawElement, MoveEleObjType, Point, resizeEleObjType } from "../lib/whiteboard/tools/types"
 import { hitTest, isPointNearLine, isPointOnBottomLeftSquare, isPointOnBottomRightSquare, isPointOnSmallCircle, isPointOnTopLeftSquare, isPointOnTopRightSquare } from "./hitTest"
 import { ispointInBoundedBox } from "../lib/whiteboard/tools/rectangle"
 
@@ -242,37 +242,163 @@ function HandleFreedrawResize(
     if (curruntResizeMoveElementObj.current?.Element.type !== "freedraw") return
 
     const anchorPoints = curruntResizeMoveElementObj.current?.Element.SnapshotPoints
+    const ele = curruntResizeMoveElementObj.current.Element
+    const Refobj = curruntResizeMoveElementObj.current
     switch (curruntResizeMoveElementObj.current?.contactPoint) {
         case "TopSide":
-            console.log("hii")
+            const newarrTop: Point[] = ele.SnapshotPoints.map((pt) => {
+
+                const ratio = (pt.y - Refobj.top) / (Refobj.bottom - Refobj.top)
+
+                const newYfromTop = ratio * (point.y - Refobj.bottom)
+
+                const newY = point.y - newYfromTop
+
+                return {
+                    ...pt,
+                    y: newY
+                }
+            })
+            ele.points = newarrTop
             break;
-        // case "BottomSide":
-        //     handleResizeSideBottom(curruntResizeMoveElementObj.current, point)
-        //     break;
-        // case "LeftSide":
-        //     handleResizeSideLeft(curruntResizeMoveElementObj.current, point)
-        //     break;
-        // case "RightSide":
-        //     handleResizeSideRight(curruntResizeMoveElementObj.current, point)
-        //     break;
-        // case "TopLeftSquare":
-        //     handleResizeSquareTopLeft(curruntResizeMoveElementObj.current, point)
-        //     break;
-        // case "TopRightSquare":
-        //     handleResizeSquareTopRight(curruntResizeMoveElementObj.current, point)
-        //     break;
-        // case "BottomLeftSquare":
-        //     handleResizeSquareBottomLeft(curruntResizeMoveElementObj.current, point)
-        //     break;
-        // case "BottomRightSquare":
-        //     handleResizeSquareBottomRight(curruntResizeMoveElementObj.current, point)
-        //     break;
-        // case "LeftCircle":
-        //     handleResizeLeftCircle(curruntResizeMoveElementObj.current, point)
-        //     break;
-        // case "RightCircle":
-        //     handleResizeRightCircle(curruntResizeMoveElementObj.current, point)
-        //     break;
+        case "BottomSide":
+            const newarBottom: Point[] = ele.SnapshotPoints.map((pt) => {
+
+                const ratio = (pt.y - Refobj.bottom) / (Refobj.top - Refobj.bottom)
+
+                const newYfrombottom = ratio * (point.y - Refobj.top)
+
+                const newY = point.y - newYfrombottom
+
+                return {
+                    ...pt,
+                    y: newY
+                }
+            })
+            ele.points = newarBottom
+            break;
+        case "LeftSide":
+            const newarrLeft: Point[] = ele.SnapshotPoints.map((pt) => {
+
+                const ratio = (pt.x - Refobj.left) / (Refobj.right - Refobj.left)
+
+                const newXfromLeft = ratio * (point.x - Refobj.right)
+
+                const newX = point.x - newXfromLeft
+
+                return {
+                    ...pt,
+                    x: newX
+                }
+            })
+            ele.points = newarrLeft
+            break;
+        case "RightSide":
+            const newarrRight: Point[] = ele.SnapshotPoints.map((pt) => {
+
+                const ratio = (pt.x - Refobj.right) / (Refobj.left - Refobj.right)
+
+                const newXfromRight = ratio * (point.x - Refobj.left)
+
+                const newX = point.x - newXfromRight
+
+                return {
+                    ...pt,
+                    x: newX
+                }
+            })
+            ele.points = newarrRight
+            break;
+        case "TopLeftSquare":
+            const newarrTopLeft: Point[] = ele.SnapshotPoints.map((pt) => {
+
+                const ratioY = (pt.y - Refobj.top) / (Refobj.bottom - Refobj.top)
+                const ratioX = (pt.x - Refobj.left) / (Refobj.right - Refobj.left)
+
+                const newYfromTop = ratioY * (point.y - Refobj.bottom)
+                const newXfromLeft = ratioX * (point.x - Refobj.right)
+
+                const newY = point.y - newYfromTop
+                const newX = point.x - newXfromLeft
+
+                return {
+                    ...pt,
+                    x: newX,
+                    y: newY
+                }
+            })
+            ele.points = newarrTopLeft
+            break;
+
+
+
+        case "TopRightSquare":
+            const newarrTopright: Point[] = ele.SnapshotPoints.map((pt) => {
+
+                const ratioY = (pt.y - Refobj.top) / (Refobj.bottom - Refobj.top)
+                const ratioX = (pt.x - Refobj.right) / (Refobj.left - Refobj.right)
+
+                const newYfromTop = ratioY * (point.y - Refobj.bottom)
+                const newXfromRight = ratioX * (point.x - Refobj.left)
+
+                const newY = point.y - newYfromTop
+                const newX = point.x - newXfromRight
+
+                return {
+                    ...pt,
+                    x: newX,
+                    y: newY
+                }
+            })
+            ele.points = newarrTopright
+            break;
+
+
+        case "BottomLeftSquare":
+            const newarrBottomLeft: Point[] = ele.SnapshotPoints.map((pt) => {
+
+                const ratioY = (pt.y - Refobj.bottom) / (Refobj.top - Refobj.bottom)
+                const ratioX = (pt.x - Refobj.left) / (Refobj.right - Refobj.left)
+
+                const newYfrombottom = ratioY * (point.y - Refobj.top)
+                const newXfromLeft = ratioX * (point.x - Refobj.right)
+
+                const newY = point.y - newYfrombottom
+                const newX = point.x - newXfromLeft
+
+                return {
+                    ...pt,
+                    x: newX,
+                    y: newY
+                }
+            })
+            ele.points = newarrBottomLeft
+            break;
+
+
+        case "BottomRightSquare":
+
+            const newarrBottomRight: Point[] = ele.SnapshotPoints.map((pt) => {
+
+                const ratioY = (pt.y - Refobj.bottom) / (Refobj.top - Refobj.bottom)
+                const ratioX = (pt.x - Refobj.right) / (Refobj.left - Refobj.right)
+
+                const newYfrombottom = ratioY * (point.y - Refobj.top)
+                const newXfromRight = ratioX * (point.x - Refobj.left)
+
+                const newY = point.y - newYfrombottom
+                const newX = point.x - newXfromRight
+
+                return {
+                    ...pt,
+                    x: newX,
+                    y: newY
+                }
+            })
+            ele.points = newarrBottomRight
+            break;
+
+
     }
 
 }
