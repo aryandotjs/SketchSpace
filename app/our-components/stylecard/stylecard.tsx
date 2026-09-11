@@ -6,9 +6,7 @@ import { WidthPick } from "./widthpick";
 import { OpacityPick } from "./opacitypick";
 import { StrokeStylePick } from "./strokestyle";
 import { ActionPick } from "./actions";
-import { StrokeStyle } from "@/app/lib/whiteboard/tools/types";
-import { Fillpick } from "./fillpick";
-import { BorderPick } from "./borderpick";
+import { Element, StrokeStyle } from "@/app/lib/whiteboard/tools/types";
 
 
 
@@ -29,7 +27,12 @@ export function StyleCard(
       strokeWidth,
       
       setopacity,
-      opacity
+      opacity,
+
+      Elements,
+      setElements,
+      SelectedElement,
+      setSelectedElement,
    } 
    :{ 
       tool:string
@@ -47,7 +50,12 @@ export function StyleCard(
       setstrokeWidth:Dispatch<SetStateAction<string>>
 
       opacity:number,
-      setopacity:Dispatch<SetStateAction<number>>
+      setopacity:Dispatch<SetStateAction<number>>,
+
+      Elements: Element[],
+      setElements: Dispatch<SetStateAction<Element[]>>,
+      SelectedElement: Element | null,
+      setSelectedElement: Dispatch<SetStateAction<Element | null>>,
    }){
       
      return <div className=" w-50 absolute left-4 top-20 ">
@@ -67,7 +75,7 @@ export function StyleCard(
 
             
             {/* { tool !== "Pencil" && tool !== "Ellipse" ?  */}
-            <ActionPick setstrokeWidth={setstrokeWidth} strokeWidth={strokeWidth}></ActionPick> 
+            <ActionPick setstrokeWidth={setstrokeWidth} strokeWidth={strokeWidth} Elements={Elements} setElements={setElements} SelectedElement={SelectedElement} setSelectedElement={setSelectedElement} ></ActionPick> 
             {/* // : " "} */}
                
           </Card>

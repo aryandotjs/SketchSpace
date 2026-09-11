@@ -205,6 +205,7 @@ export function drawSelectionFrame(
 
     ctx.beginPath()
     ctx.strokeStyle = "#9290E8"
+    ctx.lineWidth = 1
     ctx.lineJoin = "round"
     ctx.lineCap = "round"
 

@@ -14,6 +14,8 @@ import { arrowPointerDown, arrowPointerMove, arrowPointerUp } from "@/app/lib/wh
 import { ArrowElement, DiamondElement, Element, ElementStyle, EllipseElement, FreedrawElement, LineElement, MoveEleObjType, Point, RectangleElement, resizeEleObjType, StrokeStyle } from "@/app/lib/whiteboard/tools/types";
 import { onPointdowmText } from "@/app/lib/whiteboard/tools/text";
 import { cursorPointerDown, cursorPointerMove, cursorPointerUp } from "@/app/interaction/cursor";
+import { handleKeydown } from "@/app/actions/handleKeydown";
+import { StyleCard } from "../stylecard/stylecard";
  
  
 export function Whiteboard() { 
@@ -54,6 +56,10 @@ export function Whiteboard() {
 
     useEffect(() => { 
         
+        window.addEventListener("keydown",(e:KeyboardEvent)=>{
+            handleKeydown(e,Elements,setElements,SelectedElement,setSelectedElement)
+        })
+
         const canvas = canvasRef.current; 
         if (!canvas) return; 
     
@@ -199,14 +205,6 @@ export function Whiteboard() {
             ()=>{setElements([])
                 setSelectedElement(null)
             }} className="rounded-2xl p-3 border-2 bg-yellow-200 h-4 w-10"></div>
-        <div onClick={
-            ()=>{
-                if (SelectedElement) {
-                    const filtered = Elements.filter((a)=>a.id !== SelectedElement.id)
-                    setElements(filtered)
-                    setSelectedElement(null)
-                }
-            }} className="rounded-2xl p-3 border-2 bg-green-200 h-4 w-10"></div>
         </div>
                 {editingText && tool === "Text" && (
                     <textarea
@@ -233,7 +231,7 @@ export function Whiteboard() {
                 )}
                 <ToggleToolbar settool={settool} tool={tool}></ToggleToolbar>
                 {/* <MainMenu></MainMenu> */}
-                {/* <StyleCard 
+                {/* <StyleCard
                     tool={tool}
 
                     setStrokecolor={setstrokeColor} 
@@ -249,7 +247,13 @@ export function Whiteboard() {
                     setstrokeWidth={setstrokewidth}
                     
                     opacity={opacity}
-                    setopacity={setopacity}>
+                    setopacity={setopacity}
+
+                    Elements={Elements} 
+                    setElements={setElements} 
+                    SelectedElement={SelectedElement}
+                    setSelectedElement={setSelectedElement}
+                    >
                 </StyleCard> */}
                 {/* <LibraryDrawer></LibraryDrawer> */}
                 <canvas 

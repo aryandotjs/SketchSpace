@@ -1,3 +1,5 @@
+import { deleteElement } from "@/app/actions/elementActions"
+import { Element } from "@/app/lib/whiteboard/tools/types"
 import { Label } from "@/components/ui/label"
 import { Trash2 , Copy} from "lucide-react"
 import { Dispatch, SetStateAction } from "react"
@@ -6,10 +8,18 @@ import { Dispatch, SetStateAction } from "react"
 
 export function ActionPick({
     strokeWidth,
-    setstrokeWidth
+    setstrokeWidth,
+    Elements,
+    setElements,
+    SelectedElement,
+    setSelectedElement
 }:{
     strokeWidth:string,
-    setstrokeWidth:Dispatch<SetStateAction<string>>
+    setstrokeWidth:Dispatch<SetStateAction<string>>,
+    Elements: Element[],
+    setElements: Dispatch<SetStateAction<Element[]>>,
+    SelectedElement: Element | null,
+    setSelectedElement: Dispatch<SetStateAction<Element | null>>
 }){
      return <div className="gap-2.5 flex flex-col ">
                <Label className="text-[10px] font-normal ">Actions</Label>
@@ -19,7 +29,11 @@ export function ActionPick({
                         <Copy size={15} strokeWidth={1.5}></Copy>
                      </div>
                   
-                    <div className={`h-7 w-7 rounded-sm  hover:bg-[#F5F5F5] flex justify-center items-center`}>
+                    <div
+                    onClick={()=>{
+                        deleteElement(Elements,setElements,SelectedElement,setSelectedElement)
+                    }} 
+                     className={`h-7 w-7 rounded-sm  hover:bg-[#F5F5F5] flex justify-center items-center`}>
                         <Trash2 size={15} strokeWidth={1.5}></Trash2>
                      </div>
                </div>

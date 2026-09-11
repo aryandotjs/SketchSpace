@@ -119,9 +119,6 @@ export const handleResizeRightCircle = (ElementObj: resizeEleObjType, point: Poi
     ElementObj.Element.width = ElementObj.left - point.x
 }
 
-
-
-
 export const findResizeSideAndAddResizeRef = (SelectedElement: Element, point: Point, Elements: Element[], curruntResizeElement: React.RefObject<resizeEleObjType | null>, setSelectedElement: Dispatch<SetStateAction<Element | null>>) => {
 
     let touched = false
@@ -232,8 +229,6 @@ export const findMoveTargetAndAddMoveRef = (SelectedElement: Element, point: Poi
 
     return touched
 }
-
-
 
 function HandleFreedrawResize(
     curruntResizeMoveElementObj: React.RefObject<resizeEleObjType | null>,
