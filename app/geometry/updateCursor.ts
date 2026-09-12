@@ -1,10 +1,19 @@
 import { ispointInBoundedBox } from "../lib/whiteboard/tools/rectangle";
-import { Element, Point } from "../lib/whiteboard/tools/types";
+import { DimentionsMultipleSelectBox, Element, Point } from "../lib/whiteboard/tools/types";
 import { hitTest, isPointNearLine, isPointOnBottomLeftSquare, isPointOnBottomRightSquare, isPointOnSmallCircle, isPointOnTopLeftSquare, isPointOnTopRightSquare } from "./hitTest";
 
 
 
-export const updateCursor = (canvas: HTMLCanvasElement, point: Point, Elements: Element[], SelectedElement: Element | null) => {
+export const updateCursor = (
+    canvas: HTMLCanvasElement,
+    point: Point,
+    Elements: Element[],
+    SelectedElement: Element | null,
+    MultipleSelectedElements: Element[] | null,
+    DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
+
+
+) => {
     if (SelectedElement) {
 
         if (SelectedElement.type === "rectangle" || SelectedElement.type === "ellipse" || SelectedElement.type === "diamond" || SelectedElement.type === "freedraw") {
@@ -13,6 +22,15 @@ export const updateCursor = (canvas: HTMLCanvasElement, point: Point, Elements: 
                 canvas.style.cursor = "move"
                 return
             }
+        }
+
+    }
+    if (MultipleSelectedElements) {
+        if (!DimentionsMutipleSelectionBox || !DimentionsMutipleSelectionBox.left || !DimentionsMutipleSelectionBox.right || !DimentionsMutipleSelectionBox.top || !DimentionsMutipleSelectionBox.bottom) return
+
+        if (ispointInBoundedBox(DimentionsMutipleSelectionBox.left, DimentionsMutipleSelectionBox.top, DimentionsMutipleSelectionBox?.top - DimentionsMutipleSelectionBox?.bottom, DimentionsMutipleSelectionBox?.left - DimentionsMutipleSelectionBox?.right, point)) {
+            canvas.style.cursor = "move"
+            return
         }
 
     }

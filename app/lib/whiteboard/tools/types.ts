@@ -136,3 +136,31 @@ export type MoveEleObjType = {
     fromLeft: number,
     movement: "Still" | "Moved"
 }
+export type MoveMultipleEleObjType = {
+    point: Point
+    ElementsAndIndex: {
+        element: Element,
+        index: number,
+    }[] | null,
+    DimentionBox: DimentionsMultipleSelectBox | null
+    fromTop: number,
+    fromLeft: number,
+    movement: "Still" | "Moved"
+}
+
+export type MultipleSelectObjType = {
+    top: number,
+    bottom: number,
+    left: number,
+    right: number,
+    MultipleSelectedElements: Element[] | null
+    dimentionsInnerBox: DimentionsMultipleSelectBox | null
+    movement: "Still" | "Moved"
+}
+
+export type DimentionsMultipleSelectBox = {
+    top: number | null,
+    bottom: number | null,
+    left: number | null,
+    right: number | null
+} 

@@ -1,4 +1,4 @@
-import { ArrowElement, DiamondElement, Element, EllipseElement, FreedrawElement, LineElement, RectangleElement, StrokeStyle, TextElement } from "./tools/types";
+import { ArrowElement, DiamondElement, Element, EllipseElement, FreedrawElement, LineElement, MultipleSelectObjType, RectangleElement, StrokeStyle, TextElement } from "./tools/types";
 
 
 export function drawLine(ctx: CanvasRenderingContext2D, line: LineElement) {
@@ -87,8 +87,9 @@ export function drawRectangle(ctx: CanvasRenderingContext2D, rectangle: Rectangl
     let { x, y, height, width, strokeColor, strokeStyle, strokeWidth, opacity } = rectangle
 
     if (!height && !width) return
-    ctx.setLineDash(strokeStyle === StrokeStyle.Dotted ? [2, 9] : strokeStyle === StrokeStyle.Dashed ? [8, 10] : [0, 0]);
     ctx.beginPath()
+
+    ctx.setLineDash(strokeStyle === StrokeStyle.Dotted ? [2, 9] : strokeStyle === StrokeStyle.Dashed ? [8, 10] : [0, 0]);
     ctx.globalAlpha = Number((opacity * 0.01).toFixed(1))
     ctx.strokeStyle = strokeColor
     ctx.lineWidth = strokeWidth
@@ -182,6 +183,66 @@ export function drawText(ctx: CanvasRenderingContext2D, textElement: TextElement
     // ctx.stroke()
     ctx.fillText(text, x, y)
 }
+export const drawSelectionForLine = (
+    ctx: CanvasRenderingContext2D,
+    element: Element
+) => {
+    const rotationX = element.x;
+    const rotationY = element.y;
+    const radius = 4;
+
+
+
+    ctx.beginPath();
+    ctx.arc(
+        rotationX,
+        rotationY,
+        radius,
+        0,
+        Math.PI * 2
+    );
+    ctx.fillStyle = "#030712";
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.strokeStyle = "#BEBCEF";
+    ctx.lineWidth = 1.5;
+    ctx.arc(
+        rotationX,
+        rotationY,
+        radius,
+        0,
+        Math.PI * 2
+    );
+    ctx.stroke();
+
+
+
+    ctx.beginPath();
+    ctx.arc(
+        rotationX - element.width,
+        rotationY - element.height,
+        radius,
+        0,
+        Math.PI * 2
+    );
+    ctx.fillStyle = "#030712";
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.strokeStyle = "#BEBCEF";
+    ctx.lineWidth = 1.5;
+    ctx.arc(
+        rotationX - element.width,
+        rotationY - element.height,
+        radius,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.stroke();
+}
+
 
 export function drawSelectionFrame(
     ctx: CanvasRenderingContext2D,
@@ -293,19 +354,190 @@ export function drawSelectionFrame(
     ctx.lineWidth = 1.5;
     ctx.stroke();
 }
-
-
-
-export const drawSelectionForLine = (
+export function drawSelectionFrameWithoutHandles(
     ctx: CanvasRenderingContext2D,
     element: Element
-) => {
-    const rotationX = element.x;
-    const rotationY = element.y;
+) {
+    const offby = 4
+    const squareSize = 8
+
+    const { x, y, width, height } = element
+
+    if (width === 0 && height === 0) return
+
+    const left = Math.min(x, x - width)
+    const right = Math.max(x, x - width)
+
+    const top = Math.min(y, y - height)
+    const bottom = Math.max(y, y - height)
+
+    const boxWidth = right - left
+    const boxHeight = bottom - top
+
+    ctx.beginPath()
+    ctx.strokeStyle = "#9290E8"
+    ctx.lineWidth = 1
+    ctx.lineJoin = "round"
+    ctx.lineCap = "round"
+
+    ctx.rect(
+        left - offby,
+        top - offby,
+        boxWidth + offby * 2,
+        boxHeight + offby * 2
+    )
+
+    ctx.stroke()
+}
+export function drawMutlipleSelectionFrame(
+    ctx: CanvasRenderingContext2D,
+    curruntMultipleSelectObj: React.RefObject<MultipleSelectObjType | null>,
+) {
+    if (!curruntMultipleSelectObj.current) {
+        return
+    }
+    const frame = curruntMultipleSelectObj.current
+    if (frame.right === frame.bottom) return
+
+    // const left = Math.min(x, x - width)
+    // const right = Math.max(x, x - width)
+
+    // const top = Math.min(y, y - height)
+    // const bottom = Math.max(y, y - height)
+
+    // const boxWidth = right - left
+    // const boxHeight = bottom - top
+    ctx.beginPath();
+    ctx.strokeStyle = "#9290E8"
+    ctx.lineWidth = 1
+    ctx.lineJoin = "round"
+    ctx.lineCap = "round"
+
+    ctx.rect(
+        frame.left,
+        frame.top,
+        frame.right,
+        frame.bottom
+    )
+
+    ctx.fillStyle = "#03071250";
+    ctx.fillRect(
+        frame.left,
+        frame.top,
+        frame.right,
+        frame.bottom
+    )
+    ctx.stroke()
+
+}
+
+
+
+
+
+export function drawSelectionFrameDashedSecondaryInputs(
+    ctx: CanvasRenderingContext2D,
+    x: number | null,
+    y: number | null,
+    width: number | null,
+    height: number | null
+) {
+    /// imade this functon sbc idndt wanted to mess with the curr props for themai draw slection frame 
+    const offby = 4
+    const squareSize = 8
+
+    if (x === null || y === null || width === null || height === null) return
+    const left = Math.min(x, x - width)
+    const right = Math.max(x, x - width)
+
+    const top = Math.min(y, y - height)
+    const bottom = Math.max(y, y - height)
+
+    const boxWidth = right - left
+    const boxHeight = bottom - top
+
+    ctx.beginPath()
+
+    ctx.setLineDash([1.5, 2]);
+    ctx.strokeStyle = "#9290E8"
+    ctx.lineWidth = 1
+    ctx.lineJoin = "round"
+    ctx.lineCap = "round"
+
+    ctx.rect(
+        left - offby,
+        top - offby,
+        boxWidth + offby * 2,
+        boxHeight + offby * 2
+    )
+
+    ctx.stroke()
+
+    ctx.beginPath()
+    ctx.setLineDash([0, 0]);
+
+    ctx.fillStyle = "#030712"
+    ctx.strokeStyle = "#9290E8"
+    ctx.lineJoin = "round"
+    ctx.lineCap = "round"
+    ctx.lineWidth = 1.5
+    // #030712
+
+    ctx.fillRect(
+        (left - offby) - squareSize / 2,
+        (top - offby) - squareSize / 2,
+        squareSize,
+        squareSize
+    )
+    ctx.strokeRect(
+        (left - offby) - squareSize / 2,
+        (top - offby) - squareSize / 2,
+        squareSize,
+        squareSize
+    )
+
+    ctx.fillRect(
+        (right + offby) - squareSize / 2,
+        (top - offby) - squareSize / 2,
+        squareSize,
+        squareSize
+    )
+    ctx.strokeRect(
+        (right + offby) - squareSize / 2,
+        (top - offby) - squareSize / 2,
+        squareSize,
+        squareSize
+    )
+
+    ctx.fillRect(
+        (right + offby) - squareSize / 2,
+        (bottom + offby) - squareSize / 2,
+        squareSize,
+        squareSize
+    )
+    ctx.strokeRect(
+        (right + offby) - squareSize / 2,
+        (bottom + offby) - squareSize / 2,
+        squareSize,
+        squareSize
+    )
+
+    ctx.fillRect(
+        (left - offby) - squareSize / 2,
+        (bottom + offby) - squareSize / 2,
+        squareSize,
+        squareSize
+    )
+    ctx.strokeRect(
+        (left - offby) - squareSize / 2,
+        (bottom + offby) - squareSize / 2,
+        squareSize,
+        squareSize
+    )
+
+    const rotationX = left + boxWidth / 2;
+    const rotationY = top - 20;
     const radius = 4;
-
-
-
     ctx.beginPath();
     ctx.arc(
         rotationX,
@@ -314,44 +546,8 @@ export const drawSelectionForLine = (
         0,
         Math.PI * 2
     );
-    ctx.fillStyle = "#030712";
-    ctx.fill();
-
-    ctx.beginPath();
     ctx.strokeStyle = "#BEBCEF";
+
     ctx.lineWidth = 1.5;
-    ctx.arc(
-        rotationX,
-        rotationY,
-        radius,
-        0,
-        Math.PI * 2
-    );
     ctx.stroke();
-
-
-
-    ctx.beginPath();
-    ctx.arc(
-        rotationX - element.width,
-        rotationY - element.height,
-        radius,
-        0,
-        Math.PI * 2
-    );
-    ctx.fillStyle = "#030712";
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.strokeStyle = "#BEBCEF";
-    ctx.lineWidth = 1.5;
-    ctx.arc(
-        rotationX - element.width,
-        rotationY - element.height,
-        radius,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.stroke();
-} 
+}

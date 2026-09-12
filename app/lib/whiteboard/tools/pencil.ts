@@ -45,7 +45,9 @@ export const pencilPointerUp = (curruntStroke: React.RefObject<FreedrawElement |
     final.SnapshotPoints = final.points.map(point => ({
         ...point
     }))
-    setElements((prev) => ([...prev, final]))
+    if (final.points.length > 0) {
+        setElements((prev) => ([...prev, final]))
+    }
     curruntStroke.current = null
 }
 

@@ -11,11 +11,10 @@ import {  linePointerDown, linePointerMove, linePointerUp } from "@/app/lib/whit
 import { eraserHandler, eraserPointerUp } from "@/app/lib/whiteboard/tools/eraser";
 import { diamondPointerDown, diamondPointerMove, diamondPointerUp } from "@/app/lib/whiteboard/tools/diamond";
 import { arrowPointerDown, arrowPointerMove, arrowPointerUp } from "@/app/lib/whiteboard/tools/arrow";
-import { ArrowElement, DiamondElement, Element, ElementStyle, EllipseElement, FreedrawElement, LineElement, MoveEleObjType, Point, RectangleElement, resizeEleObjType, StrokeStyle } from "@/app/lib/whiteboard/tools/types";
+import { ArrowElement, DiamondElement, DimentionsMultipleSelectBox, Element, ElementStyle, EllipseElement, FreedrawElement, LineElement, MoveEleObjType, MoveMultipleEleObjType, MultipleSelectObjType, Point, RectangleElement, resizeEleObjType, StrokeStyle } from "@/app/lib/whiteboard/tools/types";
 import { onPointdowmText } from "@/app/lib/whiteboard/tools/text";
 import { cursorPointerDown, cursorPointerMove, cursorPointerUp } from "@/app/interaction/cursor";
 import { handleKeydown } from "@/app/actions/handleKeydown";
-import { StyleCard } from "../stylecard/stylecard";
  
  
 export function Whiteboard() { 
@@ -23,6 +22,9 @@ export function Whiteboard() {
 
     const [Elements,setElements] = useState<Element[]>([])
     const [SelectedElement,setSelectedElement] = useState<Element|null>(null)
+
+    const [MultipleSelectedElements,setMultipleSelectedElements] = useState<Element[]|null>(null)
+    const [DimentionsMutipleSelectionBox, setDimentionsMutipleSelectionBox] = useState<DimentionsMultipleSelectBox|null>(null)
     
     const [strokeColor,setstrokeColor] = useState<string>("#fff")
     const [backgroundColor,setbackgroundColor] = useState<string>("#ffc9c9")
@@ -42,10 +44,15 @@ export function Whiteboard() {
 
     const curruntResizeElementObj = useRef<resizeEleObjType|null>(null)
     const curruntMoveElementObj = useRef<MoveEleObjType|null>(null)
+    const curruntMultipleSelectObj = useRef<MultipleSelectObjType|null>(null)
+    const MoveMultipleSelectObj = useRef<MoveMultipleEleObjType|null>(null)
     
-    const ErasedElementIds = useRef<string[]|null>(null)
-   
+    
+    
 
+
+    const ErasedElementIds = useRef<string[]|null>(null)
+    
     const [editingText, setEditingText] = useState<{
         x: number;
         y: number;
@@ -76,7 +83,7 @@ export function Whiteboard() {
     
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0); 
     
-        renderAll(ctx,Elements,rect,SelectedElement,null)
+        renderAll(ctx,Elements,rect,SelectedElement,null,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj)
         }; 
     
         resize(); 
@@ -87,7 +94,7 @@ export function Whiteboard() {
         window.removeEventListener("resize", resize); 
         }; 
 
-    }, [Elements,SelectedElement]); 
+    }, [Elements,SelectedElement,MultipleSelectedElements,DimentionsMutipleSelectionBox]); 
 
     const getPoint = (event:React.PointerEvent)=>{
          const canvas = canvasRef.current!
@@ -102,7 +109,21 @@ export function Whiteboard() {
         const point = getPoint(event)
         
          if (tool === "Cursor") {
-            cursorPointerDown(point,Elements,setElements,SelectedElement,setSelectedElement,curruntResizeElementObj,curruntMoveElementObj)
+            cursorPointerDown(
+                point,
+                Elements,
+                setElements,
+                SelectedElement,
+                setSelectedElement,
+                curruntResizeElementObj,
+                curruntMoveElementObj,
+                curruntMultipleSelectObj,
+                MultipleSelectedElements,
+                setMultipleSelectedElements,
+                DimentionsMutipleSelectionBox,
+                setDimentionsMutipleSelectionBox,
+                MoveMultipleSelectObj
+            )
          }
 
         if (tool === "Line") {curruntLine.current = linePointerDown(point,strokeColor,Number(strokewidth),strokeStyle,opacity,backgroundColor) }
@@ -150,32 +171,43 @@ export function Whiteboard() {
         const rect = canvas.getBoundingClientRect();
          
         if (tool === "Cursor") {
-            cursorPointerMove(curruntResizeElementObj,curruntMoveElementObj,point,Elements,setElements,canvas,SelectedElement)
+            cursorPointerMove(curruntResizeElementObj,
+                curruntMoveElementObj,
+                curruntMultipleSelectObj,
+                point,
+                Elements,
+                setElements,
+                canvas,
+                SelectedElement,
+                MultipleSelectedElements,
+                DimentionsMutipleSelectionBox,
+                MoveMultipleSelectObj
+            )
         }
 
         if (curruntLine.current && tool === "Line") {
-            renderAll(ctx,Elements,rect,SelectedElement,null)
+            renderAll(ctx,Elements,rect,SelectedElement,null,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj)
             linePointerMove(curruntLine,ctx,point)
         }
         if (curruntArrow.current && tool === "Arrow") {
-            renderAll(ctx,Elements,rect,SelectedElement,null)
+            renderAll(ctx,Elements,rect,SelectedElement,null,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj)
             arrowPointerMove(curruntArrow,ctx,point)
         }
         if (curruntStroke.current && tool === "Freedraw") {
-            renderAll(ctx,Elements,rect,SelectedElement,null)
+            renderAll(ctx,Elements,rect,SelectedElement,null,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj)
             pencilPointerMove(curruntStroke,ctx,point)
         }
         
         if (curruntRectangle.current && tool === "Rectangle") {
-            renderAll(ctx,Elements,rect,SelectedElement,null)
+            renderAll(ctx,Elements,rect,SelectedElement,null,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj)
             rectanglePointerMove(curruntRectangle,ctx,point)            
         }
         if (curruntDiamond.current && tool === "Diamond") {
-            renderAll(ctx,Elements,rect,SelectedElement,null)
+            renderAll(ctx,Elements,rect,SelectedElement,null,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj)
             diamondPointerMove(curruntDiamond,ctx,point)            
         }
         if (curruntEllipse.current && tool === "Ellipse") {
-            renderAll(ctx,Elements,rect,SelectedElement,null)
+            renderAll(ctx,Elements,rect,SelectedElement,null,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj)
             ellipsePointerMove(curruntEllipse,ctx,point)            
         }
         if (ErasedElementIds.current && previousPointRef.current && tool === "Eraser") {
@@ -185,8 +217,11 @@ export function Whiteboard() {
     }
 
     const handlePointerUp = (event: React.PointerEvent)=>{
-         
-        if(tool === "Cursor"){ cursorPointerUp(Elements,setElements ,curruntResizeElementObj,curruntMoveElementObj)}
+        if (!canvasRef.current) return;
+        
+        if(tool === "Cursor"){ cursorPointerUp(Elements,setElements ,curruntResizeElementObj,curruntMoveElementObj,curruntMultipleSelectObj,
+            canvasRef.current,SelectedElement,setSelectedElement,setMultipleSelectedElements,setDimentionsMutipleSelectionBox,
+            MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj)}
 
         if (tool === "Line") { linePointerUp(curruntLine,setElements,settool, setSelectedElement) }
         if (tool === "Arrow") { arrowPointerUp(curruntArrow,setElements,settool,setSelectedElement) }
@@ -200,11 +235,14 @@ export function Whiteboard() {
     }
 
     return ( <div className="h-full w-full relative">
-        <div className="bg-gray-950 text-red-600 flex">Id :{SelectedElement?.id} , length: {Elements.length}  
+        <div className="bg-gray-950 text-red-600 flex gap-3"> aaa: {SelectedElement?.id}  , length : {Elements.length} 
         <div onClick={
             ()=>{setElements([])
                 setSelectedElement(null)
+                setMultipleSelectedElements(null)
+                setDimentionsMutipleSelectionBox(null)
             }} className="rounded-2xl p-3 border-2 bg-yellow-200 h-4 w-10"></div>
+            <div>legths multipe :{MultipleSelectedElements?.length}</div>
         </div>
                 {editingText && tool === "Text" && (
                     <textarea

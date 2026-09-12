@@ -24,7 +24,6 @@ export const eraserHandler = (
         if (El.type === "line") {
             if (!erasedset.has(El.id)) {
                 if (ispointOnLine(previousPoint, point, El)) {
-                    console.log("yes")
                     erasedset.add(El.id)
                     updated = true
                 }
@@ -65,7 +64,7 @@ export const eraserHandler = (
         const updatedShapes = Elements.map((El) => {
             return erasedset.has(El.id) ? { ...El, opacity: 10 } : El
         });
-        renderAll(ctx, updatedShapes, rect)
+        // renderAll(ctx, updatedShapes, rect)
     }
     previousPointRef.current = point
 }
