@@ -48,6 +48,8 @@ export function Whiteboard() {
     const curruntMultipleSelectObj = useRef<MultipleSelectObjType|null>(null)
     const MoveMultipleSelectObj = useRef<MoveMultipleEleObjType|null>(null)
     const ResizeMultipleSelectObj = useRef<MultipleResizeEleObjType|null>(null)
+    const clipboardRef = useRef<Element[] | null>(null)
+    const currentPointRef = useRef<Point | null>(null)
     
     
     const ErasedElementIds = useRef<string[]|null>(null)
@@ -63,9 +65,23 @@ export function Whiteboard() {
     useEffect(() => {  
         
         const keydownhandler = (e:KeyboardEvent) => { 
-            handleKeydown(e,Elements,setElements,SelectedElement,setSelectedElement,MultipleSelectedElements,DimentionsMutipleSelectionBox,setDimentionsMutipleSelectionBox,setMultipleSelectedElements)
+            handleKeydown(
+                e,
+                Elements,
+                setElements,
+                SelectedElement,
+                setSelectedElement,
+                MultipleSelectedElements,
+                DimentionsMutipleSelectionBox,
+                setDimentionsMutipleSelectionBox,
+                setMultipleSelectedElements,
+                clipboardRef,
+                currentPointRef,
+                settool
+            )
         }
-        window.addEventListener("keydown",keydownhandler)
+        window.addEventListener("keydown",
+            keydownhandler)
         
         const canvas = canvasRef.current; 
         if (!canvas) return; 
@@ -165,6 +181,7 @@ export function Whiteboard() {
     const handlePointerMove = (event : React.PointerEvent) => {
 
         const point = getPoint(event)
+        currentPointRef.current = point
         const canvas = canvasRef.current
         if (!canvas) return;
         const ctx = canvas?.getContext("2d")
@@ -239,7 +256,7 @@ export function Whiteboard() {
     
    
     return ( <div className="h-full w-full relative">
-        <div className="bg-gray-950 text-red-600 flex gap-3"> aaa: {SelectedElement?.id}  , length : {Elements.length} 
+        <div className="bg-gray-950 text-red-600 flex gap-3"> aaa: {SelectedElement?.id}  , length : {Elements.length}  : {JSON.stringify(currentPointRef.current)}
         <div onClick={
             ()=>{setElements([])
                 setSelectedElement(null)
