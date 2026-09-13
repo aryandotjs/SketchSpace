@@ -15,6 +15,7 @@ import { ArrowElement, DiamondElement, DimentionsMultipleSelectBox, Element, Ele
 import { onPointdowmText } from "@/app/lib/whiteboard/tools/text";
 import { cursorPointerDown, cursorPointerMove, cursorPointerUp } from "@/app/interaction/cursor";
 import { handleKeydown } from "@/app/actions/handleKeydown";
+import { getMultipleSectionsDimentions, getMultipleSectionsDimentionsSecondary } from "@/app/interaction/selection/selection";
  
  
 export function Whiteboard() { 
@@ -60,11 +61,12 @@ export function Whiteboard() {
     
 
     useEffect(() => {  
+        
         const keydownhandler = (e:KeyboardEvent) => { 
             handleKeydown(e,Elements,setElements,SelectedElement,setSelectedElement,MultipleSelectedElements,DimentionsMutipleSelectionBox,setDimentionsMutipleSelectionBox,setMultipleSelectedElements)
         }
         window.addEventListener("keydown",keydownhandler)
-
+        
         const canvas = canvasRef.current; 
         if (!canvas) return; 
     
@@ -109,6 +111,7 @@ export function Whiteboard() {
         
          if (tool === "Cursor") {
             cursorPointerDown(
+                event,
                 point,
                 Elements,
                 setElements,
@@ -122,7 +125,7 @@ export function Whiteboard() {
                 DimentionsMutipleSelectionBox,
                 setDimentionsMutipleSelectionBox,
                 MoveMultipleSelectObj,
-                ResizeMultipleSelectObj
+                ResizeMultipleSelectObj,
             )
          }
 
@@ -169,7 +172,8 @@ export function Whiteboard() {
         const rect = canvas.getBoundingClientRect();
          
         if (tool === "Cursor") {
-            cursorPointerMove(curruntResizeElementObj,
+            cursorPointerMove(
+                curruntResizeElementObj,
                 curruntMoveElementObj,
                 curruntMultipleSelectObj,
                 point,
@@ -180,7 +184,7 @@ export function Whiteboard() {
                 MultipleSelectedElements,
                 DimentionsMutipleSelectionBox,
                 MoveMultipleSelectObj,
-                ResizeMultipleSelectObj
+                ResizeMultipleSelectObj,
             )
         }
 
@@ -232,7 +236,8 @@ export function Whiteboard() {
         
         canvasRef.current?.releasePointerCapture(event.pointerId)
     }
-
+    
+   
     return ( <div className="h-full w-full relative">
         <div className="bg-gray-950 text-red-600 flex gap-3"> aaa: {SelectedElement?.id}  , length : {Elements.length} 
         <div onClick={

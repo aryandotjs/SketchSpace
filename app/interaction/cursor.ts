@@ -5,11 +5,12 @@ import { renderAll } from "../lib/whiteboard/render"
 import { findResizeSideAndAddResizeRef, HandleResizeMultipleElementDown, HandleResizeMultipleElementsMove, resizeElement } from "@/app/geometry/resize"
 import { findMoveTargetAndAddMoveRef, HandleMoveMultipleElementsDown, moveElement } from "./move"
 import { updateCursor } from "../geometry/updateCursor"
-import { handleMultipleSelectDown, handleMultipleSelectionFrameMove, handleMultipleSelectMove, handleMultipleSelectUp } from "./selection/selection"
+import { getMultipleSectionsDimentionsSecondary, handleMultipleSelectDown, handleMultipleSelectionFrameMove, handleMultipleSelectMove, handleMultipleSelectUp } from "./selection/selection"
 
 
 
 export const cursorPointerDown = (
+    event: React.PointerEvent,
     point: Point,
     Elements: Element[],
     setElements: Dispatch<SetStateAction<Element[]>>,
@@ -25,11 +26,10 @@ export const cursorPointerDown = (
     MoveMultipleSelectObj: React.RefObject<MoveMultipleEleObjType | null>,
     ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
 
-
 ) => {
+
     // remove the multiple selected
     if (!SelectedElement && !MultipleSelectedElements) {
-        console.log("in")
         const element = hitTest(point, Elements)
         if (!element) {
             setSelectedElement(null)
@@ -48,12 +48,27 @@ export const cursorPointerDown = (
         if (HandleResizeMultipleElementDown(DimentionsMutipleSelectionBox, MultipleSelectedElements, point, ResizeMultipleSelectObj)) {
             return
         }
+
+
         const element = hitTest(point, Elements)
         if (!element) {
             setMultipleSelectedElements(null)
             setDimentionsMutipleSelectionBox(null)
             curruntMultipleSelectObj.current = null
             curruntMultipleSelectObj.current = handleMultipleSelectDown(point)
+            return
+        }
+        if (element && event.shiftKey) {
+            setMultipleSelectedElements((prev) => {
+                const currunt = prev ?? []
+                const set = new Set(currunt)
+                if (set.has(element)) {
+                    return [...currunt]
+                }
+                getMultipleSectionsDimentionsSecondary(setDimentionsMutipleSelectionBox, [...currunt, element])
+                return [...currunt, element]
+            })
+
             return
         }
         setSelectedElement(element)
@@ -76,8 +91,22 @@ export const cursorPointerDown = (
             setSelectedElement(null)
             curruntMultipleSelectObj.current = handleMultipleSelectDown(point)
         }
-        setSelectedElement(element)
+        if (element && event.shiftKey) {
+            setMultipleSelectedElements((prev) => {
+                if (!prev) {
+                    getMultipleSectionsDimentionsSecondary(setDimentionsMutipleSelectionBox, [SelectedElement, element])
+                    return [element, SelectedElement]
+                }
+                return prev
+            })
+            setSelectedElement(null)
 
+            return
+        }
+        if (element) {
+            setSelectedElement(element)
+            return
+        }
     }
 }
 

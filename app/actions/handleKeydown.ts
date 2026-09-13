@@ -5,7 +5,6 @@ import { hitTest } from "../geometry/hitTest";
 
 export const handleKeydown = (
     e: KeyboardEvent,
-    point: Point,
     Elements: Element[],
     setElements: Dispatch<SetStateAction<Element[]>>,
     SelectedElement: Element | null,
@@ -19,10 +18,5 @@ export const handleKeydown = (
     if (e.key === "Delete" || e.key === "Backspace") {
         deleteElement(Elements, setElements, SelectedElement, setSelectedElement, MultipleSelectedElements, setMultipleSelectedElements, setDimentionsMutipleSelectionBox)
     }
-    if (e.key === "Shift") {
-        if (SelectedElement && hitTest(point, Elements)) {
 
-        }
-
-    }
 }

@@ -41,9 +41,11 @@ export const rectanglePointerUp = (curruntRectangle: React.RefObject<RectangleEl
     if (!curruntRectangle) return
     const Rectangle = curruntRectangle.current
     if (!Rectangle) return
-
+    if (Rectangle.height === 0 && Rectangle.width === 0) {
+        curruntRectangle.current = null
+        return
+    }
     const genralized = generalize(Rectangle)
-
     setElements((prev) => ([...prev, genralized]))
     setSelectedElement(curruntRectangle.current)
     curruntRectangle.current = null

@@ -190,7 +190,7 @@ function selectElementsInsideFrame(
 }
 
 
-function getMultipleSectionsDimentions(
+export function getMultipleSectionsDimentions(
     curruntMultipleSelectObj: React.RefObject<MultipleSelectObjType | null>,
     Elements: Element[],
 ) {
@@ -235,4 +235,49 @@ function getMultipleSectionsDimentions(
         }
     })
     curruntMultipleSelectObj.current.dimentionsInnerBox = dimentions
+}
+
+
+export function getMultipleSectionsDimentionsSecondary(
+    setDimentionsMutipleSelectionBox: Dispatch<SetStateAction<DimentionsMultipleSelectBox | null>>,
+    MultipleSelectedElements: Element[] | null,
+) {
+    //creadted this for useeeffect thign 
+
+    if (!MultipleSelectedElements) return
+
+    const dimentions: DimentionsMultipleSelectBox = {
+        top: null,
+        bottom: null,
+        left: null,
+        right: null
+    }
+    MultipleSelectedElements.map((ele) => {
+        if (!dimentions.top) {
+            dimentions.top = ele.y
+        }
+        if (!dimentions.left) {
+            dimentions.left = ele.x
+        }
+        if (!dimentions.right) {
+            dimentions.right = ele.x - ele.width
+        }
+        if (!dimentions.bottom) {
+            dimentions.bottom = ele.y - ele.height
+        }
+
+        if (dimentions.left > ele.x) {
+            dimentions.left = ele.x
+        }
+        if (dimentions.right < ele.x - ele.width) {
+            dimentions.right = ele.x - ele.width
+        }
+        if (dimentions.top > ele.y) {
+            dimentions.top = ele.y
+        }
+        if (dimentions.bottom < ele.y - ele.height) {
+            dimentions.bottom = ele.y - ele.height
+        }
+    })
+    setDimentionsMutipleSelectionBox(dimentions)
 } 
