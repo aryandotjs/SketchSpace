@@ -11,7 +11,7 @@ import {  linePointerDown, linePointerMove, linePointerUp } from "@/app/lib/whit
 import { eraserHandler, eraserPointerUp } from "@/app/lib/whiteboard/tools/eraser";
 import { diamondPointerDown, diamondPointerMove, diamondPointerUp } from "@/app/lib/whiteboard/tools/diamond";
 import { arrowPointerDown, arrowPointerMove, arrowPointerUp } from "@/app/lib/whiteboard/tools/arrow";
-import { ArrowElement, DiamondElement, DimentionsMultipleSelectBox, Element, ElementStyle, EllipseElement, FreedrawElement, LineElement, MoveEleObjType, MoveMultipleEleObjType, MultipleSelectObjType, Point, RectangleElement, resizeEleObjType, StrokeStyle } from "@/app/lib/whiteboard/tools/types";
+import { ArrowElement, DiamondElement, DimentionsMultipleSelectBox, Element, ElementStyle, EllipseElement, FreedrawElement, LineElement, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, Point, RectangleElement, resizeEleObjType, StrokeStyle } from "@/app/lib/whiteboard/tools/types";
 import { onPointdowmText } from "@/app/lib/whiteboard/tools/text";
 import { cursorPointerDown, cursorPointerMove, cursorPointerUp } from "@/app/interaction/cursor";
 import { handleKeydown } from "@/app/actions/handleKeydown";
@@ -46,11 +46,9 @@ export function Whiteboard() {
     const curruntMoveElementObj = useRef<MoveEleObjType|null>(null)
     const curruntMultipleSelectObj = useRef<MultipleSelectObjType|null>(null)
     const MoveMultipleSelectObj = useRef<MoveMultipleEleObjType|null>(null)
+    const ResizeMultipleSelectObj = useRef<MultipleResizeEleObjType|null>(null)
     
     
-    
-
-
     const ErasedElementIds = useRef<string[]|null>(null)
     
     const [editingText, setEditingText] = useState<{
@@ -61,11 +59,11 @@ export function Whiteboard() {
     const [textValue, setTextValue] = useState("");
     
 
-    useEffect(() => { 
-        
-        window.addEventListener("keydown",(e:KeyboardEvent)=>{
-            handleKeydown(e,Elements,setElements,SelectedElement,setSelectedElement)
-        })
+    useEffect(() => {  
+        const keydownhandler = (e:KeyboardEvent) => { 
+            handleKeydown(e,Elements,setElements,SelectedElement,setSelectedElement,MultipleSelectedElements,DimentionsMutipleSelectionBox,setDimentionsMutipleSelectionBox,setMultipleSelectedElements)
+        }
+        window.addEventListener("keydown",keydownhandler)
 
         const canvas = canvasRef.current; 
         if (!canvas) return; 
@@ -92,6 +90,7 @@ export function Whiteboard() {
     
         return () => { 
         window.removeEventListener("resize", resize); 
+        window.removeEventListener("keydown",keydownhandler)
         }; 
 
     }, [Elements,SelectedElement,MultipleSelectedElements,DimentionsMutipleSelectionBox]); 
@@ -122,7 +121,8 @@ export function Whiteboard() {
                 setMultipleSelectedElements,
                 DimentionsMutipleSelectionBox,
                 setDimentionsMutipleSelectionBox,
-                MoveMultipleSelectObj
+                MoveMultipleSelectObj,
+                ResizeMultipleSelectObj
             )
          }
 
@@ -154,9 +154,7 @@ export function Whiteboard() {
             setTextValue("");
 
         }
-
         
-
         canvasRef.current?.setPointerCapture(event.pointerId)
 
     }
@@ -181,7 +179,8 @@ export function Whiteboard() {
                 SelectedElement,
                 MultipleSelectedElements,
                 DimentionsMutipleSelectionBox,
-                MoveMultipleSelectObj
+                MoveMultipleSelectObj,
+                ResizeMultipleSelectObj
             )
         }
 
@@ -221,7 +220,7 @@ export function Whiteboard() {
         
         if(tool === "Cursor"){ cursorPointerUp(Elements,setElements ,curruntResizeElementObj,curruntMoveElementObj,curruntMultipleSelectObj,
             canvasRef.current,SelectedElement,setSelectedElement,setMultipleSelectedElements,setDimentionsMutipleSelectionBox,
-            MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj)}
+            MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)}
 
         if (tool === "Line") { linePointerUp(curruntLine,setElements,settool, setSelectedElement) }
         if (tool === "Arrow") { arrowPointerUp(curruntArrow,setElements,settool,setSelectedElement) }

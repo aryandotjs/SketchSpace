@@ -127,6 +127,18 @@ export type resizeEleObjType = {
     contactPoint: "TopLeftSquare" | "TopRightSquare" | "BottomLeftSquare" | "BottomRightSquare" |
     "TopSide" | "BottomSide" | "LeftSide" | "RightSide" | "TopCircle" | "LeftCircle" | "RightCircle" | "none"
 }
+export type MultipleResizeEleObjType = {
+    point: Point,
+    dimentions: DimentionsMultipleSelectBox | null,
+    ElementsAndIndex: {
+        element: Element,
+        index: number,
+    }[] | null,
+    SnapShotElements: Element[] | null,
+    movement: "Still" | "Moved"
+    contactPoint: "TopLeftSquare" | "TopRightSquare" | "BottomLeftSquare" | "BottomRightSquare" |
+    "TopSide" | "BottomSide" | "LeftSide" | "RightSide" | "TopCircle" | "LeftCircle" | "RightCircle" | "none"
+}
 
 export type MoveEleObjType = {
     point: Point

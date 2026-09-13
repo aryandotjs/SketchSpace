@@ -1,6 +1,7 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { DimentionsMultipleSelectBox, Element, MoveEleObjType, MoveMultipleEleObjType, Point } from "../lib/whiteboard/tools/types";
 import { ispointInBoundedBox } from "../lib/whiteboard/tools/rectangle";
+import { isPointNearLine } from "../geometry/hitTest";
 
 
 export const moveElement = (curruntMoveElementObj: React.RefObject<MoveEleObjType | null>, point: Point) => {
@@ -28,8 +29,52 @@ export const moveElement = (curruntMoveElementObj: React.RefObject<MoveEleObjTyp
 
 }
 
+export const findMoveTargetAndAddMoveRef = (SelectedElement: Element, point: Point, Elements: Element[], curruntMoveElement: React.RefObject<MoveEleObjType | null>, setSelectedElement: Dispatch<SetStateAction<Element | null>>) => {
+    let touched = false
+    if (SelectedElement.type === "rectangle" || SelectedElement.type === "ellipse" || SelectedElement.type === "diamond" || SelectedElement.type === "freedraw") {
 
-export const HandleMoveMultipleElements = (
+        if (ispointInBoundedBox(SelectedElement.x, SelectedElement.y, SelectedElement.height, SelectedElement.width, point)) {
+            const MoveElementObj: MoveEleObjType = {
+                point,
+                Element: SelectedElement,
+                index: null,
+                fromTop: point.y - SelectedElement.y,
+                fromLeft: point.x - SelectedElement.x,
+                movement: "Still"
+            }
+            const index = Elements.findIndex((a) => a.id === SelectedElement.id)
+            if (index >= 0) {
+                MoveElementObj.index = index
+                curruntMoveElement.current = MoveElementObj
+            }
+            touched = true
+        }
+    }
+
+    if (SelectedElement.type === "line" || SelectedElement.type === "arrow") {
+
+        if (isPointNearLine(SelectedElement.x, SelectedElement.y, SelectedElement.height, SelectedElement.width, point)) {
+            const MoveElementObj: MoveEleObjType = {
+                point,
+                Element: SelectedElement,
+                index: null,
+                fromTop: point.y - SelectedElement.y,
+                fromLeft: point.x - SelectedElement.x,
+                movement: "Still"
+            }
+            const index = Elements.findIndex((a) => a.id === SelectedElement.id)
+            if (index >= 0) {
+                MoveElementObj.index = index
+                curruntMoveElement.current = MoveElementObj
+            }
+            touched = true
+
+        }
+    }
+
+    return touched
+}
+export const HandleMoveMultipleElementsDown = (
     DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
     MultipleSelectedElements: Element[] | null,
     setMultipleSelectedElements: Dispatch<SetStateAction<Element[] | null>>,
@@ -81,4 +126,5 @@ export const HandleMoveMultipleElements = (
     }
     return touched
 }
+
 

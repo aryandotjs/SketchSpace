@@ -1,9 +1,9 @@
 import { hitTest } from "@/app/geometry/hitTest"
-import { DimentionsMultipleSelectBox, Element, MoveEleObjType, MoveMultipleEleObjType, MultipleSelectObjType, Point, resizeEleObjType } from "../lib/whiteboard/tools/types"
+import { DimentionsMultipleSelectBox, Element, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, Point, resizeEleObjType } from "../lib/whiteboard/tools/types"
 import React, { Dispatch, SetStateAction } from "react"
 import { renderAll } from "../lib/whiteboard/render"
-import { findMoveTargetAndAddMoveRef, findResizeSideAndAddResizeRef, resizeElement } from "@/app/geometry/resize"
-import { HandleMoveMultipleElements, moveElement } from "./move"
+import { findResizeSideAndAddResizeRef, HandleResizeMultipleElementDown, HandleResizeMultipleElementsMove, resizeElement } from "@/app/geometry/resize"
+import { findMoveTargetAndAddMoveRef, HandleMoveMultipleElementsDown, moveElement } from "./move"
 import { updateCursor } from "../geometry/updateCursor"
 import { handleMultipleSelectDown, handleMultipleSelectionFrameMove, handleMultipleSelectMove, handleMultipleSelectUp } from "./selection/selection"
 
@@ -22,12 +22,14 @@ export const cursorPointerDown = (
     setMultipleSelectedElements: Dispatch<SetStateAction<Element[] | null>>,
     DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
     setDimentionsMutipleSelectionBox: Dispatch<SetStateAction<DimentionsMultipleSelectBox | null>>,
-    MoveMultipleSelectObj: React.RefObject<MoveMultipleEleObjType | null>
+    MoveMultipleSelectObj: React.RefObject<MoveMultipleEleObjType | null>,
+    ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
+
 
 ) => {
     // remove the multiple selected
     if (!SelectedElement && !MultipleSelectedElements) {
-
+        console.log("in")
         const element = hitTest(point, Elements)
         if (!element) {
             setSelectedElement(null)
@@ -40,7 +42,10 @@ export const cursorPointerDown = (
     }
 
     if (MultipleSelectedElements) {
-        if (HandleMoveMultipleElements(DimentionsMutipleSelectionBox, MultipleSelectedElements, setMultipleSelectedElements, point, Elements, setElements, MoveMultipleSelectObj)) {
+        if (HandleMoveMultipleElementsDown(DimentionsMutipleSelectionBox, MultipleSelectedElements, setMultipleSelectedElements, point, Elements, setElements, MoveMultipleSelectObj)) {
+            return
+        }
+        if (HandleResizeMultipleElementDown(DimentionsMutipleSelectionBox, MultipleSelectedElements, point, ResizeMultipleSelectObj)) {
             return
         }
         const element = hitTest(point, Elements)
@@ -48,7 +53,7 @@ export const cursorPointerDown = (
             setMultipleSelectedElements(null)
             setDimentionsMutipleSelectionBox(null)
             curruntMultipleSelectObj.current = null
-            // curruntMultipleSelectObj.current = handleMultipleSelectDown(point)
+            curruntMultipleSelectObj.current = handleMultipleSelectDown(point)
             return
         }
         setSelectedElement(element)
@@ -87,20 +92,26 @@ export const cursorPointerMove = (
     SelectedElement: Element | null,
     MultipleSelectedElements: Element[] | null,
     DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
-    MoveMultipleSelectObj: React.RefObject<MoveMultipleEleObjType | null>
+    MoveMultipleSelectObj: React.RefObject<MoveMultipleEleObjType | null>,
+    ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
+
 ) => {
     const ctx = canvas?.getContext("2d")
     if (!ctx) return;
     const rect = canvas.getBoundingClientRect()
-    if (curruntMultipleSelectObj.current) {
+
+    if (ResizeMultipleSelectObj.current) {
+        HandleResizeMultipleElementsMove(ResizeMultipleSelectObj, point)
         renderAll(ctx, Elements, rect, SelectedElement, null, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj)
+    }
+
+    if (curruntMultipleSelectObj.current) {
         handleMultipleSelectionFrameMove(Elements, point, curruntMultipleSelectObj, canvas, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, null, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj)
     }
     if (MoveMultipleSelectObj.current) {
-        renderAll(ctx, Elements, rect, SelectedElement, null, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj)
-
-        // handleMultipleSelectMove(Elements, point, curruntMultipleSelectObj, canvas, MultipleSelectedElements, DimentionsMutipleSelectionBox)
         handleMultipleSelectMove(point, MoveMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, null, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj)
     }
     if (curruntMoveElementObj.current) {
         if (curruntMoveElementObj.current.movement === "Still") {
@@ -144,8 +155,8 @@ export const cursorPointerUp = (
     setDimentionsMutipleSelectionBox: Dispatch<SetStateAction<DimentionsMultipleSelectBox | null>>,
     MultipleSelectedElements: Element[] | null,
     DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
-    MoveMultipleSelectObj: React.RefObject<MoveMultipleEleObjType | null>
-
+    MoveMultipleSelectObj: React.RefObject<MoveMultipleEleObjType | null>,
+    ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
 
 ) => {
     if (curruntResizeElement.current && curruntResizeElement.current.movement === "Moved") {
@@ -189,6 +200,7 @@ export const cursorPointerUp = (
 
     curruntResizeElement.current = null
     curruntMoveElement.current = null
+    ResizeMultipleSelectObj.current = null
 }
 
 
