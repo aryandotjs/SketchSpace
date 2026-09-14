@@ -279,5 +279,6 @@ export function getMultipleSectionsDimentionsSecondary(
             dimentions.bottom = ele.y - ele.height
         }
     })
+    console.log(dimentions, "11")
     setDimentionsMutipleSelectionBox(dimentions)
 } 

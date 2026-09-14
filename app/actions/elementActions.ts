@@ -212,19 +212,38 @@ export const PasteElementOrElements = (
 
 
     if (!DimentionsMutipleSelectionBox || !DimentionsMutipleSelectionBox.left || !DimentionsMutipleSelectionBox.right || !DimentionsMutipleSelectionBox.top || !DimentionsMutipleSelectionBox.bottom) return
+
     const dimentionHeight = DimentionsMutipleSelectionBox.bottom - DimentionsMutipleSelectionBox.top
     const dimentionWidth = DimentionsMutipleSelectionBox.right - DimentionsMutipleSelectionBox.left
     const newX = point.x - dimentionWidth / 2
     const newY = point.y - dimentionHeight / 2
 
-    const finalArray = CopyArray.map((element) => {
+    const finalArray = CopyArray.map((element, index) => {
         if (!DimentionsMutipleSelectionBox || !DimentionsMutipleSelectionBox.left || !DimentionsMutipleSelectionBox.top) return { ...element }
-        // if (element.type === "freedraw") {
-
-        // }
         const fromLeft = element.x - DimentionsMutipleSelectionBox.left
         const fromTop = element.y - DimentionsMutipleSelectionBox.top
 
+        if (element.type === "freedraw") {
+            const newppoints = element.points.map(a => {
+                const fromEleTop = a.y - element.y
+                const fromEleLeft = a.x - element.x
+
+                return {
+                    ...a,
+                    x: newX + fromLeft + fromEleLeft,
+                    y: newY + fromTop + fromEleTop
+                }
+            })
+            return {
+                ...element,
+                id: nanoid(),
+                x: newX + fromLeft,
+                y: newY + fromTop,
+                points: newppoints,
+                SnapshotPoints: newppoints
+            }
+
+        }
         return {
             ...element,
             id: nanoid(),
@@ -232,11 +251,11 @@ export const PasteElementOrElements = (
             y: newY + fromTop
         }
     })
-
     setElements((prev) => {
         getMultipleSectionsDimentionsSecondary(setDimentionsMutipleSelectionBox, [...finalArray])
         return [...prev, ...finalArray]
     })
+    clipboardRef.current = [...finalArray]
     setMultipleSelectedElements(finalArray)
 
 
