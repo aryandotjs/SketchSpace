@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { drawRectangle } from "../drawing";
-import { Element, Point, RectangleElement, StrokeStyle } from "./types";
+import { Element, historyBlock, Point, RectangleElement, StrokeStyle } from "./types";
 import { nanoid } from "nanoid";
 import { ispointOnLine } from "./line";
 import { Tool } from "../tools";
@@ -37,7 +37,15 @@ export const rectanglePointerMove = (
     drawRectangle(ctx, Rectangle);
 }
 
-export const rectanglePointerUp = (curruntRectangle: React.RefObject<RectangleElement | null>, setElements: Dispatch<SetStateAction<Element[]>>, settool: Dispatch<SetStateAction<Tool>>, setSelectedElement: Dispatch<SetStateAction<Element | null>>) => {
+
+export const rectanglePointerUp = (
+    curruntRectangle: React.RefObject<RectangleElement | null>,
+    elements: Element[],
+    setElements: Dispatch<SetStateAction<Element[]>>,
+    settool: Dispatch<SetStateAction<Tool>>,
+    setSelectedElement: Dispatch<SetStateAction<Element | null>>,
+    undoref: React.RefObject<historyBlock[]>
+) => {
     if (!curruntRectangle) return
     const Rectangle = curruntRectangle.current
     if (!Rectangle) return
@@ -46,13 +54,21 @@ export const rectanglePointerUp = (curruntRectangle: React.RefObject<RectangleEl
         return
     }
     const genralized = generalize(Rectangle)
-    setElements((prev) => ([...prev, genralized]))
-    setSelectedElement(curruntRectangle.current)
+
+    const copy = elements.map(a => ({ ...a }))
+    copy.push(genralized)
+
+    undoref.current.push({ elements: copy, selectedElement: genralized })
+
+    setElements(copy)
+    setSelectedElement({ ...Rectangle })
+
     curruntRectangle.current = null
     settool("Cursor")
 }
 
-export const ispointInBoundedBox = (x: number, y: number, height: number, width: number, point: Point) => {
+export const ispointInBoundedBox = (x: number,
+    y: number, height: number, width: number, point: Point) => {
     const left = Math.min(x, x - width)
     const right = Math.max(x, x - width)
     const top = Math.min(y, y - height)

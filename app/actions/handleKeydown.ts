@@ -1,5 +1,5 @@
 import React, { Dispatch, SetStateAction } from "react";
-import { DimentionsMultipleSelectBox, Element, Point } from "../lib/whiteboard/tools/types";
+import { DimentionsMultipleSelectBox, Element, historyBlock, Point } from "../lib/whiteboard/tools/types";
 import { copyElementandElements, deleteElement, DuplicateElementOrElements, PasteElementOrElements } from "./elementActions";
 import { hitTest } from "../geometry/hitTest";
 import { Tool } from "../lib/whiteboard/tools";
@@ -17,7 +17,9 @@ export const handleKeydown = (
     setMultipleSelectedElements: Dispatch<SetStateAction<Element[] | null>>,
     clipboardRef: React.RefObject<Element[] | null>,
     currentPointRef: React.RefObject<Point | null>,
-    settool: Dispatch<SetStateAction<Tool>>
+    settool: Dispatch<SetStateAction<Tool>>,
+    undoref: React.RefObject<historyBlock[]>
+
 ) => {
 
     if (e.key === "Delete" || e.key === "Backspace" || e.key === "x" && e.ctrlKey) {
@@ -55,6 +57,24 @@ export const handleKeydown = (
         e.preventDefault()
         setMultipleSelectedElements([...Elements])
         getMultipleSectionsDimentionsSecondary(setDimentionsMutipleSelectionBox, [...Elements])
+    }
+
+    if (e.key === "z" && e.ctrlKey) {
+        if (undoref.current && undoref.current.length > 1) {
+            const LastEle = undoref.current.pop()
+            const length = undoref.current.length
+            const lasteleoFarr = undoref.current[length - 1].elements.map((a) => ({ ...a }))
+            const lastSeledtedELe = undoref.current[length - 1].selectedElement
+            setElements(lasteleoFarr)
+            setSelectedElement({ ...lastSeledtedELe })
+
+        }
+        if (undoref.current && undoref.current.length === 1) {
+            const LastEle = undoref.current.pop()
+            setElements([])
+            setSelectedElement(null)
+
+        }
     }
 
 }

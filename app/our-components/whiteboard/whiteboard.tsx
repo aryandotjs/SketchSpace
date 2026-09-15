@@ -11,7 +11,7 @@ import {  linePointerDown, linePointerMove, linePointerUp } from "@/app/lib/whit
 import { eraserHandler, eraserPointerUp } from "@/app/lib/whiteboard/tools/eraser";
 import { diamondPointerDown, diamondPointerMove, diamondPointerUp } from "@/app/lib/whiteboard/tools/diamond";
 import { arrowPointerDown, arrowPointerMove, arrowPointerUp } from "@/app/lib/whiteboard/tools/arrow";
-import { ArrowElement, DiamondElement, DimentionsMultipleSelectBox, Element, ElementStyle, EllipseElement, FreedrawElement, LineElement, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, Point, RectangleElement, resizeEleObjType, StrokeStyle } from "@/app/lib/whiteboard/tools/types";
+import { ArrowElement, DiamondElement, DimentionsMultipleSelectBox, Element, ElementStyle, EllipseElement, FreedrawElement, historyBlock, LineElement, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, Point, RectangleElement, resizeEleObjType, StrokeStyle } from "@/app/lib/whiteboard/tools/types";
 import { onPointdowmText } from "@/app/lib/whiteboard/tools/text";
 import { cursorPointerDown, cursorPointerMove, cursorPointerUp } from "@/app/interaction/cursor";
 import { handleKeydown } from "@/app/actions/handleKeydown";
@@ -50,6 +50,7 @@ export function Whiteboard() {
     const ResizeMultipleSelectObj = useRef<MultipleResizeEleObjType|null>(null)
     const clipboardRef = useRef<Element[] | null>(null)
     const currentPointRef = useRef<Point | null>(null)
+    const undoref = useRef<historyBlock[]>([])
     
     
     const ErasedElementIds = useRef<string[]|null>(null)
@@ -77,7 +78,8 @@ export function Whiteboard() {
                 setMultipleSelectedElements,
                 clipboardRef,
                 currentPointRef,
-                settool
+                settool,
+                undoref
             )
         }
         window.addEventListener("keydown",
@@ -99,7 +101,7 @@ export function Whiteboard() {
     
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0); 
     
-        renderAll(ctx,Elements,rect,SelectedElement,null,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj)
+        renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
         }; 
     
         resize(); 
@@ -142,6 +144,7 @@ export function Whiteboard() {
                 setDimentionsMutipleSelectionBox,
                 MoveMultipleSelectObj,
                 ResizeMultipleSelectObj,
+                
             )
          }
 
@@ -198,36 +201,40 @@ export function Whiteboard() {
                 setElements,
                 canvas,
                 SelectedElement,
+                setSelectedElement,
                 MultipleSelectedElements,
+                setMultipleSelectedElements,
                 DimentionsMutipleSelectionBox,
                 MoveMultipleSelectObj,
                 ResizeMultipleSelectObj,
+                undoref
+
             )
         }
 
         if (curruntLine.current && tool === "Line") {
-            renderAll(ctx,Elements,rect,SelectedElement,null,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
             linePointerMove(curruntLine,ctx,point)
         }
         if (curruntArrow.current && tool === "Arrow") {
-            renderAll(ctx,Elements,rect,SelectedElement,null,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
             arrowPointerMove(curruntArrow,ctx,point)
         }
         if (curruntStroke.current && tool === "Freedraw") {
-            renderAll(ctx,Elements,rect,SelectedElement,null,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
             pencilPointerMove(curruntStroke,ctx,point)
         }
         
         if (curruntRectangle.current && tool === "Rectangle") {
-            renderAll(ctx,Elements,rect,SelectedElement,null,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
             rectanglePointerMove(curruntRectangle,ctx,point)            
         }
         if (curruntDiamond.current && tool === "Diamond") {
-            renderAll(ctx,Elements,rect,SelectedElement,null,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
             diamondPointerMove(curruntDiamond,ctx,point)            
         }
         if (curruntEllipse.current && tool === "Ellipse") {
-            renderAll(ctx,Elements,rect,SelectedElement,null,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
             ellipsePointerMove(curruntEllipse,ctx,point)            
         }
         if (ErasedElementIds.current && previousPointRef.current && tool === "Eraser") {
@@ -241,12 +248,12 @@ export function Whiteboard() {
         
         if(tool === "Cursor"){ cursorPointerUp(Elements,setElements ,curruntResizeElementObj,curruntMoveElementObj,curruntMultipleSelectObj,
             canvasRef.current,SelectedElement,setSelectedElement,setMultipleSelectedElements,setDimentionsMutipleSelectionBox,
-            MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)}
+            MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj,undoref)}
 
         if (tool === "Line") { linePointerUp(curruntLine,setElements,settool, setSelectedElement) }
         if (tool === "Arrow") { arrowPointerUp(curruntArrow,setElements,settool,setSelectedElement) }
         if (tool === "Freedraw") { pencilPointerUp(curruntStroke,setElements) }
-        if (tool === "Rectangle") {rectanglePointerUp(curruntRectangle,setElements,settool,setSelectedElement)}
+        if (tool === "Rectangle") {rectanglePointerUp(curruntRectangle,Elements,setElements,settool,setSelectedElement,undoref)}
         if (tool === "Diamond") {diamondPointerUp(curruntDiamond,settool,setSelectedElement,setElements)}
         if (tool === "Ellipse") {ellipsePointerUp(curruntEllipse,setElements,settool,setSelectedElement)}
         if (tool === "Eraser") { eraserPointerUp(previousPointRef,ErasedElementIds,setElements,Elements)}
@@ -256,14 +263,23 @@ export function Whiteboard() {
     
    
     return ( <div className="h-full w-full relative">
-        <div className="bg-gray-950 text-red-600 flex gap-3"> aaa: {SelectedElement?.id}  , length : {Elements.length}  : {JSON.stringify(currentPointRef.current)}
-        <div onClick={
-            ()=>{setElements([])
-                setSelectedElement(null)
-                setMultipleSelectedElements(null)
-                setDimentionsMutipleSelectionBox(null)
-            }} className="rounded-2xl p-3 border-2 bg-yellow-200 h-4 w-10"></div>
-            <div>legths multipe :{MultipleSelectedElements?.length}</div>
+        <div className="fixed top-0 left-0 bg-gray-950 text-red-600 gap text-xs">
+            <div> selected ele id : {SelectedElement?.id} </div> 
+            <div> elements length : {Elements.length} </div>
+            {/* <div onClick={
+                ()=>{setElements([])
+                    setSelectedElement(null)
+                    setMultipleSelectedElements(null)
+                    setDimentionsMutipleSelectionBox(null)
+                }} className="rounded-2xl p-3 border-2 bg-yellow-200 h-4 w-10"></div> */}
+            {/* <div> multiple selected length :{MultipleSelectedElements?.length}</div> */}
+            {/* <div> {undoref.current.map(a=>{
+                return <div key={Math.random()} className="border border-yellow-300">
+                    all elements ::  <div>{JSON.stringify(a.elements)}</div>
+                    select elemtn :: <div>{JSON.stringify(a.selectedElement)}</div>
+                </div>
+            })}</div> */}
+            <div>{undoref.current ? undoref.current.length   :   "false"}</div>
         </div>
                 {editingText && tool === "Text" && (
                     <textarea

@@ -130,6 +130,7 @@ export type resizeEleObjType = {
 export type MultipleResizeEleObjType = {
     point: Point,
     dimentions: DimentionsMultipleSelectBox | null,
+    snapShotdimentions: DimentionsMultipleSelectBox | null,
     ElementsAndIndex: {
         element: Element,
         index: number,
@@ -175,4 +176,9 @@ export type DimentionsMultipleSelectBox = {
     bottom: number | null,
     left: number | null,
     right: number | null
+}
+
+export type historyBlock = {
+    elements: Element[],
+    selectedElement: Element
 } 

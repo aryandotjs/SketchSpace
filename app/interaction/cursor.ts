@@ -1,5 +1,5 @@
 import { hitTest } from "@/app/geometry/hitTest"
-import { DimentionsMultipleSelectBox, Element, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, Point, resizeEleObjType } from "../lib/whiteboard/tools/types"
+import { DimentionsMultipleSelectBox, Element, historyBlock, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, Point, resizeEleObjType } from "../lib/whiteboard/tools/types"
 import React, { Dispatch, SetStateAction } from "react"
 import { renderAll } from "../lib/whiteboard/render"
 import { findResizeSideAndAddResizeRef, HandleResizeMultipleElementDown, HandleResizeMultipleElementsMove, resizeElement } from "@/app/geometry/resize"
@@ -45,7 +45,7 @@ export const cursorPointerDown = (
         if (HandleMoveMultipleElementsDown(DimentionsMutipleSelectionBox, MultipleSelectedElements, setMultipleSelectedElements, point, Elements, setElements, MoveMultipleSelectObj)) {
             return
         }
-        if (HandleResizeMultipleElementDown(DimentionsMutipleSelectionBox, MultipleSelectedElements, point, ResizeMultipleSelectObj)) {
+        if (HandleResizeMultipleElementDown(DimentionsMutipleSelectionBox, MultipleSelectedElements, setMultipleSelectedElements, point, ResizeMultipleSelectObj, Elements, setElements)) {
             return
         }
 
@@ -81,7 +81,6 @@ export const cursorPointerDown = (
         if (findResizeSideAndAddResizeRef(SelectedElement, point, Elements, curruntResizeElement, setSelectedElement)) {
             return
         }
-
         if (findMoveTargetAndAddMoveRef(SelectedElement, point, Elements, curruntMoveElement, setSelectedElement)) {
             return
         }
@@ -100,7 +99,6 @@ export const cursorPointerDown = (
                 return prev
             })
             setSelectedElement(null)
-
             return
         }
         if (element) {
@@ -119,10 +117,13 @@ export const cursorPointerMove = (
     setElements: Dispatch<SetStateAction<Element[]>>,
     canvas: HTMLCanvasElement,
     SelectedElement: Element | null,
+    setSelectedElement: Dispatch<SetStateAction<Element | null>>,
     MultipleSelectedElements: Element[] | null,
+    setMultipleSelectedElements: Dispatch<SetStateAction<Element[] | null>>,
     DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
     MoveMultipleSelectObj: React.RefObject<MoveMultipleEleObjType | null>,
     ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
+    undoref: React.RefObject<historyBlock[]>
 
 ) => {
     const ctx = canvas?.getContext("2d")
@@ -130,29 +131,30 @@ export const cursorPointerMove = (
     const rect = canvas.getBoundingClientRect()
 
     if (ResizeMultipleSelectObj.current) {
-        HandleResizeMultipleElementsMove(ResizeMultipleSelectObj, point)
-        renderAll(ctx, Elements, rect, SelectedElement, null, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
+        HandleResizeMultipleElementsMove(ResizeMultipleSelectObj, MultipleSelectedElements, setMultipleSelectedElements, Elements, setElements, point)
     }
 
     if (curruntMultipleSelectObj.current) {
-        handleMultipleSelectionFrameMove(Elements, point, curruntMultipleSelectObj, canvas, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj)
-        renderAll(ctx, Elements, rect, SelectedElement, null, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj)
+        handleMultipleSelectionFrameMove(Elements, point, curruntMultipleSelectObj, canvas, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, curruntMoveElementObj, ResizeMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
     }
     if (MoveMultipleSelectObj.current) {
         handleMultipleSelectMove(point, MoveMultipleSelectObj)
-        renderAll(ctx, Elements, rect, SelectedElement, null, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
     }
     if (curruntMoveElementObj.current) {
         if (curruntMoveElementObj.current.movement === "Still") {
+            // if (SelectedElement) {
+            //     undoref.current.push({ elements: Elements, selectedElement: SelectedElement })
+            // }
             const filteredarr = Elements.filter((a, b) => b !== curruntMoveElementObj.current?.index)
             setElements(filteredarr)
+            setSelectedElement(null)
             curruntMoveElementObj.current.movement = "Moved"
         }
-        ;
-
         moveElement(curruntMoveElementObj, point)
-
-        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj.current.Element, null, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, null, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
     }
     if (curruntResizeElementObj.current) {
         if (curruntResizeElementObj.current.movement === "Still") {
@@ -166,7 +168,7 @@ export const cursorPointerMove = (
 
         resizeElement(curruntResizeElementObj, point)
 
-        renderAll(ctx, Elements, rect, SelectedElement, curruntResizeElementObj.current.Element, null, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, null, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
     }
     updateCursor(canvas, point, Elements, SelectedElement, MultipleSelectedElements, DimentionsMutipleSelectionBox)
 }
@@ -186,7 +188,7 @@ export const cursorPointerUp = (
     DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
     MoveMultipleSelectObj: React.RefObject<MoveMultipleEleObjType | null>,
     ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
-
+    undoref: React.RefObject<historyBlock[]>
 ) => {
     if (curruntResizeElement.current && curruntResizeElement.current.movement === "Moved") {
         if (curruntResizeElement.current.Element.type === "freedraw") {
@@ -200,17 +202,21 @@ export const cursorPointerUp = (
         }
     }
     if (curruntMoveElement.current && curruntMoveElement.current.movement === "Moved") {
-        if (curruntMoveElement.current.Element.type === "freedraw") {
-            curruntMoveElement.current.Element.SnapshotPoints = curruntMoveElement.current.Element.points.map(a => ({ ...a }))
-        }
-        const newarr = [...Elements]
+        // if (curruntMoveElement.current.Element.type === "freedraw") {
+        //     curruntMoveElement.current.Element.SnapshotPoints = curruntMoveElement.current.Element.points.map(a => ({ ...a }))
+        // }
+        const newarr = Elements.map(a => ({ ...a }))
         if (curruntMoveElement.current.index != null) {
             newarr.splice(curruntMoveElement.current.index, 0, curruntMoveElement.current.Element)
+            setSelectedElement(curruntMoveElement.current.Element)
+
+            undoref.current.push({ elements: newarr, selectedElement: curruntMoveElement.current.Element })
+
             setElements(newarr)
         }
     }
     if (curruntMultipleSelectElement.current) {
-        handleMultipleSelectUp(canvas, Elements, curruntMultipleSelectElement, SelectedElement, setSelectedElement, setMultipleSelectedElements, setDimentionsMutipleSelectionBox, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj)
+        handleMultipleSelectUp(canvas, Elements, curruntMultipleSelectElement, SelectedElement, setSelectedElement, setMultipleSelectedElements, setDimentionsMutipleSelectionBox, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, curruntMoveElement, ResizeMultipleSelectObj)
     }
     if (MoveMultipleSelectObj.current) {
 
@@ -226,7 +232,24 @@ export const cursorPointerUp = (
         setDimentionsMutipleSelectionBox(DimentionBox)
         MoveMultipleSelectObj.current = null
     }
+    if (ResizeMultipleSelectObj.current) {
+        const obj = ResizeMultipleSelectObj.current
+        const DimentionBox = obj.dimentions
+        const EleAndIdx = obj.ElementsAndIndex
+        if (!EleAndIdx) { return }
 
+        const final = Elements.map(a => ({ ...a }))
+        EleAndIdx?.forEach(a => {
+            final.splice(a.index, 0, a.element)
+        })
+        const multiSeEle = EleAndIdx?.map((a) => {
+            return { ...a.element }
+        })
+        setElements(final)
+        setMultipleSelectedElements(multiSeEle)
+        setDimentionsMutipleSelectionBox(DimentionBox)
+        MoveMultipleSelectObj.current = null
+    }
     curruntResizeElement.current = null
     curruntMoveElement.current = null
     ResizeMultipleSelectObj.current = null

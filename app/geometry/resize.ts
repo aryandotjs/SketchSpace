@@ -1,8 +1,10 @@
 import React, { Dispatch, SetStateAction } from "react"
-import { DimentionsMultipleSelectBox, Element, FreedrawElement, MoveEleObjType, MultipleResizeEleObjType, Point, resizeEleObjType } from "../lib/whiteboard/tools/types"
+import { DimentionsMultipleSelectBox, Element, FreedrawElement, historyBlock, MoveEleObjType, MultipleResizeEleObjType, Point, resizeEleObjType } from "../lib/whiteboard/tools/types"
 import { hitTest, isPointNearLine, isPointOnBottomLeftSquare, isPointOnBottomRightSquare, isPointOnSmallCircle, isPointOnTopLeftSquare, isPointOnTopRightSquare } from "./hitTest"
 import { ispointInBoundedBox } from "../lib/whiteboard/tools/rectangle"
 import { Box } from "lucide-react"
+import { renderAll } from "../lib/whiteboard/render"
+import { handleMultipleResizeSideBottom, handleMultipleResizeSideLeft, handleMultipleResizeSideRight, handleMultipleResizeSideTop, handleResizeLeftCircle, handleResizeRightCircle, handleResizeSideBottom, handleResizeSideLeft, handleResizeSideRight, handleResizeSideTop, handleResizeSquareBottomLeft, handleResizeSquareBottomRight, handleResizeSquareTopLeft, handleResizeSquareTopRight } from "./resizeHelpers/helpers"
 
 const offby = 5
 
@@ -48,75 +50,8 @@ export const resizeElement = (
     }
 }
 
-export const handleResizeSideTop = (ElementObj: resizeEleObjType, point: Point) => {
-    if (point.y >= ElementObj.bottom) {
-        ElementObj.Element.y = ElementObj.bottom
-        ElementObj.Element.height = ElementObj.bottom - point.y
-        return
-    }
-    ElementObj.Element.y = point.y
-    ElementObj.Element.height = -(ElementObj.bottom - point.y)
-}
-export const handleResizeSideBottom = (ElementObj: resizeEleObjType, point: Point) => {
-    if (point.y <= ElementObj.top) {
-        ElementObj.Element.y = point.y
-        ElementObj.Element.height = point.y - ElementObj.top
-        return
 
-    }
-    ElementObj.Element.y = ElementObj.top
-    ElementObj.Element.height = ElementObj.top - point.y
-}
-export const handleResizeSideLeft = (ElementObj: resizeEleObjType, point: Point) => {
-    if (point.x >= ElementObj.right) {
-        ElementObj.Element.x = ElementObj.right
-        ElementObj.Element.width = ElementObj.right - point.x
-        return
-    }
-    ElementObj.Element.x = point.x
 
-    ElementObj.Element.width = -(ElementObj.right - point.x)
-
-}
-export const handleResizeSideRight = (ElementObj: resizeEleObjType, point: Point) => {
-    if (point.x <= ElementObj.left) {
-        ElementObj.Element.x = point.x
-        ElementObj.Element.width = point.x - ElementObj.left
-        return
-
-    }
-    ElementObj.Element.x = ElementObj.left
-    ElementObj.Element.width = ElementObj.left - point.x
-}
-export const handleResizeSquareTopLeft = (ElementObj: resizeEleObjType, point: Point) => {
-    handleResizeSideLeft(ElementObj, point)
-    handleResizeSideTop(ElementObj, point)
-}
-export const handleResizeSquareTopRight = (ElementObj: resizeEleObjType, point: Point) => {
-    handleResizeSideRight(ElementObj, point)
-    handleResizeSideTop(ElementObj, point)
-}
-export const handleResizeSquareBottomLeft = (ElementObj: resizeEleObjType, point: Point) => {
-    handleResizeSideLeft(ElementObj, point)
-    handleResizeSideBottom(ElementObj, point)
-}
-export const handleResizeSquareBottomRight = (ElementObj: resizeEleObjType, point: Point) => {
-    handleResizeSideRight(ElementObj, point)
-    handleResizeSideBottom(ElementObj, point)
-}
-
-export const handleResizeLeftCircle = (ElementObj: resizeEleObjType, point: Point) => {
-    ElementObj.Element.x = point.x
-    ElementObj.Element.y = point.y
-    ElementObj.Element.height = point.y - ElementObj.bottom
-    ElementObj.Element.width = point.x - ElementObj.right
-}
-export const handleResizeRightCircle = (ElementObj: resizeEleObjType, point: Point) => {
-    ElementObj.Element.x = ElementObj.left
-    ElementObj.Element.y = ElementObj.top
-    ElementObj.Element.height = ElementObj.top - point.y
-    ElementObj.Element.width = ElementObj.left - point.x
-}
 
 export const findResizeSideAndAddResizeRef = (
     SelectedElement: Element,
@@ -360,9 +295,11 @@ function HandleFreedrawResize(
 export function HandleResizeMultipleElementDown(
     DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
     MultipleSelectedElements: Element[] | null,
+    setMultipleSelectedElements: Dispatch<SetStateAction<Element[] | null>>,
     point: Point,
     ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
-
+    Elements: Element[],
+    setElements: Dispatch<SetStateAction<Element[]>>,
 ) {
     let touched = false
 
@@ -372,9 +309,10 @@ export function HandleResizeMultipleElementDown(
 
     const MultipleElementResizeObj: MultipleResizeEleObjType = {
         point: point,
-        dimentions: DimentionsMutipleSelectionBox,
-        ElementsAndIndex: MultipleSelectedElements?.map((a, i) => ({ element: a, index: i })),
-        SnapShotElements: MultipleSelectedElements,
+        dimentions: { ...DimentionsMutipleSelectionBox },
+        snapShotdimentions: { ...DimentionsMutipleSelectionBox },
+        ElementsAndIndex: MultipleSelectedElements?.map((a, i) => ({ element: { ...a }, index: i })),
+        SnapShotElements: MultipleSelectedElements.map(a => ({ ...a })),
         movement: "Still",
         contactPoint: "none",
     }
@@ -420,289 +358,64 @@ export function HandleResizeMultipleElementDown(
 
 export function HandleResizeMultipleElementsMove(
     ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
-    point: Point
+    MultipleSelectedElements: Element[] | null,
+    setMultipleSelectedElements: Dispatch<SetStateAction<Element[] | null>>,
+    Elements: Element[],
+    setElements: Dispatch<SetStateAction<Element[]>>,
+    point: Point,
 ) {
-
+    console.log("iwas reere")
+    if (ResizeMultipleSelectObj.current?.movement === "Still") {
+        const MuseSet = new Set(MultipleSelectedElements?.map(a => a.id))
+        const filtered: Element[] = []
+        Elements.forEach((a) => {
+            if (!MuseSet.has(a.id)) {
+                filtered.push({ ...a })
+            }
+        })
+        setElements(filtered)
+        setMultipleSelectedElements(null)
+        ResizeMultipleSelectObj.current.movement = "Moved"
+    }
     switch (ResizeMultipleSelectObj.current?.contactPoint) {
 
         case "TopSide": {
-            const Refobj = ResizeMultipleSelectObj.current
-            if (!Refobj || !Refobj.ElementsAndIndex || !Refobj.SnapShotElements || !Refobj.contactPoint || !Refobj.dimentions || !Refobj.movement || !Refobj.point) return
-
-            const { dimentions, SnapShotElements, ElementsAndIndex } = Refobj;
-            const { left, right, top, bottom } = dimentions
-
-            if (top == null || left == null || bottom == null || right == null) return
-
-            const BoxH = bottom - top
-            const CrrboxH = bottom - point.y
-            const ratio = CrrboxH / BoxH
-
-            ResizeMultipleSelectObj.current.SnapShotElements?.forEach((SnapElement, index) => {
-
-                const SnapYfromTop = SnapElement.y - top;
-                const ratioY = SnapYfromTop / BoxH;
-
-                ElementsAndIndex[index].element.y = point.y + (CrrboxH * ratioY);
-                ElementsAndIndex[index].element.height = SnapElement.height * ratio;
-
-            })
-            Refobj.dimentions.top = point.y
-            Refobj.point = point
-
+            handleMultipleResizeSideTop(ResizeMultipleSelectObj, point)
             break;
         }
 
         case "BottomSide": {
-            const Refobj = ResizeMultipleSelectObj.current
-            if (!Refobj || !Refobj.ElementsAndIndex || !Refobj.SnapShotElements || !Refobj.contactPoint || !Refobj.dimentions || !Refobj.movement || !Refobj.point) return
-
-            const { dimentions, SnapShotElements, ElementsAndIndex } = Refobj;
-            const { left, right, top, bottom } = dimentions
-
-            if (top == null || left == null || bottom == null || right == null) return
-
-            const BoxH = bottom - top
-            const CrrboxH = point.y - top
-
-            const ratio = CrrboxH / BoxH
-
-            ResizeMultipleSelectObj.current.SnapShotElements?.forEach((SnapElement, index) => {
-
-                const SnapYfromBottom = bottom - SnapElement.y;
-                const ratioY = SnapYfromBottom / BoxH;
-
-                ElementsAndIndex[index].element.y = point.y - CrrboxH * ratioY
-                ElementsAndIndex[index].element.height = SnapElement.height * ratio;
-
-            })
-            Refobj.dimentions.bottom = point.y
-            Refobj.point = point
-
+            handleMultipleResizeSideBottom(ResizeMultipleSelectObj, point)
             break;
         }
 
         case "LeftSide": {
-
-            const Refobj = ResizeMultipleSelectObj.current
-            if (!Refobj || !Refobj.ElementsAndIndex || !Refobj.SnapShotElements || !Refobj.contactPoint || !Refobj.dimentions || !Refobj.movement || !Refobj.point) return
-
-            const { dimentions, SnapShotElements, ElementsAndIndex } = Refobj;
-            const { left, right, top, bottom } = dimentions
-
-            if (top == null || left == null || bottom == null || right == null) return
-
-            const BoxW = right - left
-            const CrrboxW = right - point.x
-
-            const ratio = CrrboxW / BoxW
-
-            ResizeMultipleSelectObj.current.SnapShotElements?.forEach((SnapElement, index) => {
-
-                const SnapXfromLeft = SnapElement.x - left;
-                const ratioX = SnapXfromLeft / BoxW;
-                ElementsAndIndex[index].element.x = point.x + (CrrboxW * ratioX);
-                ElementsAndIndex[index].element.width = SnapElement.width * ratio;
-
-            })
-            Refobj.dimentions.left = point.x
-            Refobj.point = point
-            console.log(Refobj.ElementsAndIndex[0].element.height, Refobj.ElementsAndIndex[0].element.width)
-
+            handleMultipleResizeSideLeft(ResizeMultipleSelectObj, point)
             break;
         }
         case "RightSide": {
-            const Refobj = ResizeMultipleSelectObj.current
-            if (!Refobj || !Refobj.ElementsAndIndex || !Refobj.SnapShotElements || !Refobj.contactPoint || !Refobj.dimentions || !Refobj.movement || !Refobj.point) return
-
-            const { dimentions, SnapShotElements, ElementsAndIndex } = Refobj;
-            const { left, right, top, bottom } = dimentions
-
-            if (top == null || left == null || bottom == null || right == null) return
-
-            const BoxW = right - left
-            const CrrboxW = point.x - left
-
-            const ratio = CrrboxW / BoxW
-
-            ResizeMultipleSelectObj.current.SnapShotElements?.forEach((SnapElement, index) => {
-
-                const SnapXfromRight = right - SnapElement.x;
-                const ratioX = SnapXfromRight / BoxW;
-
-                ElementsAndIndex[index].element.x = point.x - CrrboxW * ratioX
-
-                ElementsAndIndex[index].element.width = SnapElement.width * ratio;
-
-            })
-            Refobj.dimentions.right = point.x
-            Refobj.point = point
-            console.log(Refobj.ElementsAndIndex[0].element.height, Refobj.ElementsAndIndex[0].element.width)
-
+            handleMultipleResizeSideRight(ResizeMultipleSelectObj, point)
             break;
         }
 
         case "TopLeftSquare": {
-
-            const Refobj = ResizeMultipleSelectObj.current
-            if (!Refobj || !Refobj.ElementsAndIndex || !Refobj.SnapShotElements || !Refobj.contactPoint || !Refobj.dimentions || !Refobj.movement || !Refobj.point) return
-
-            const { dimentions, SnapShotElements, ElementsAndIndex } = Refobj;
-            const { left, right, top, bottom } = dimentions
-
-            if (top == null || left == null || bottom == null || right == null) return
-
-            const BoxH = bottom - top
-            const BoxW = right - left
-
-            const CrrboxH = bottom - point.y
-            const CrrboxW = right - point.x
-
-
-            const ratioHeight = CrrboxH / BoxH
-            const ratioWidth = CrrboxW / BoxW
-
-
-            ResizeMultipleSelectObj.current.SnapShotElements?.forEach((SnapElement, index) => {
-
-                const SnapYfromTop = SnapElement.y - top;
-                const ratioY = SnapYfromTop / BoxH;
-                ElementsAndIndex[index].element.y = point.y + (CrrboxH * ratioY);
-                ElementsAndIndex[index].element.height = SnapElement.height * ratioHeight;
-
-                const SnapXfromLeft = SnapElement.x - left;
-                const ratioX = SnapXfromLeft / BoxW;
-                ElementsAndIndex[index].element.x = point.x + (CrrboxW * ratioX);
-                ElementsAndIndex[index].element.width = SnapElement.width * ratioWidth;
-
-            })
-            Refobj.dimentions.top = point.y
-            Refobj.dimentions.left = point.x
-
-            Refobj.point = point
-
+            handleMultipleResizeSideTop(ResizeMultipleSelectObj, point)
+            handleMultipleResizeSideLeft(ResizeMultipleSelectObj, point)
             break;
         }
-
-
         case "TopRightSquare": {
-            const Refobj = ResizeMultipleSelectObj.current
-            if (!Refobj || !Refobj.ElementsAndIndex || !Refobj.SnapShotElements || !Refobj.contactPoint || !Refobj.dimentions || !Refobj.movement || !Refobj.point) return
-
-            const { dimentions, SnapShotElements, ElementsAndIndex } = Refobj;
-            const { left, right, top, bottom } = dimentions
-
-            if (top == null || left == null || bottom == null || right == null) return
-            const BoxH = bottom - top
-            const BoxW = right - left
-
-            const CrrboxH = bottom - point.y
-            const CrrboxW = point.x - left
-
-
-            const ratioHeight = CrrboxH / BoxH
-            const ratioWidth = CrrboxW / BoxW
-
-
-            ResizeMultipleSelectObj.current.SnapShotElements?.forEach((SnapElement, index) => {
-
-                const SnapYfromTop = SnapElement.y - top;
-                const ratioY = SnapYfromTop / BoxH;
-                ElementsAndIndex[index].element.y = point.y + (CrrboxH * ratioY);
-                ElementsAndIndex[index].element.height = SnapElement.height * ratioHeight;
-
-                const SnapXfromRight = right - SnapElement.x;
-                const ratioX = SnapXfromRight / BoxW;
-
-                ElementsAndIndex[index].element.x = point.x - CrrboxW * ratioX
-
-                ElementsAndIndex[index].element.width = SnapElement.width * ratioWidth;
-
-            })
-            Refobj.dimentions.top = point.y
-            Refobj.dimentions.right = point.x
-            Refobj.point = point
-
+            handleMultipleResizeSideTop(ResizeMultipleSelectObj, point)
+            handleMultipleResizeSideRight(ResizeMultipleSelectObj, point)
             break;
         }
         case "BottomLeftSquare": {
-            const Refobj = ResizeMultipleSelectObj.current
-            if (!Refobj || !Refobj.ElementsAndIndex || !Refobj.SnapShotElements || !Refobj.contactPoint || !Refobj.dimentions || !Refobj.movement || !Refobj.point) return
-
-            const { dimentions, SnapShotElements, ElementsAndIndex } = Refobj;
-            const { left, right, top, bottom } = dimentions
-
-            if (top == null || left == null || bottom == null || right == null) return
-            const BoxH = bottom - top
-            const BoxW = right - left
-
-
-            const CrrboxH = point.y - top
-            const CrrboxW = right - point.x
-
-            const ratioHeight = CrrboxH / BoxH
-            const ratioWidth = CrrboxW / BoxW
-
-            ResizeMultipleSelectObj.current.SnapShotElements?.forEach((SnapElement, index) => {
-
-                const SnapYfromBottom = bottom - SnapElement.y;
-                const ratioY = SnapYfromBottom / BoxH;
-
-                ElementsAndIndex[index].element.y = point.y - CrrboxH * ratioY
-                ElementsAndIndex[index].element.height = SnapElement.height * ratioHeight;
-
-                const SnapXfromLeft = SnapElement.x - left;
-                const ratioX = SnapXfromLeft / BoxW;
-                ElementsAndIndex[index].element.x = point.x + (CrrboxW * ratioX);
-                ElementsAndIndex[index].element.width = SnapElement.width * ratioWidth;
-
-            })
-            Refobj.dimentions.bottom = point.y
-            Refobj.dimentions.left = point.x
-            Refobj.point = point
-
+            handleMultipleResizeSideBottom(ResizeMultipleSelectObj, point)
+            handleMultipleResizeSideLeft(ResizeMultipleSelectObj, point)
             break;
-
         }
         case "BottomRightSquare": {
-            const Refobj = ResizeMultipleSelectObj.current
-            if (!Refobj || !Refobj.ElementsAndIndex || !Refobj.SnapShotElements || !Refobj.contactPoint || !Refobj.dimentions || !Refobj.movement || !Refobj.point) return
-
-            const { dimentions, SnapShotElements, ElementsAndIndex } = Refobj;
-            const { left, right, top, bottom } = dimentions
-
-            if (top == null || left == null || bottom == null || right == null) return
-            const BoxH = bottom - top
-            const BoxW = right - left
-
-
-
-            const CrrboxW = point.x - left
-            const CrrboxH = point.y - top
-
-            const ratioWidth = CrrboxW / BoxW
-            const ratioHeight = CrrboxH / BoxH
-
-            ResizeMultipleSelectObj.current.SnapShotElements?.forEach((SnapElement, index) => {
-
-                const SnapXfromRight = right - SnapElement.x;
-                const ratioX = SnapXfromRight / BoxW;
-
-                ElementsAndIndex[index].element.x = point.x - CrrboxW * ratioX
-
-                ElementsAndIndex[index].element.width = SnapElement.width * ratioWidth;
-
-                const SnapYfromBottom = bottom - SnapElement.y;
-                const ratioY = SnapYfromBottom / BoxH;
-
-                ElementsAndIndex[index].element.y = point.y - CrrboxH * ratioY
-                ElementsAndIndex[index].element.height = SnapElement.height * ratioHeight;
-
-            })
-            Refobj.dimentions.right = point.x
-            Refobj.dimentions.bottom = point.y
-            Refobj.point = point
-
+            handleMultipleResizeSideBottom(ResizeMultipleSelectObj, point)
+            handleMultipleResizeSideRight(ResizeMultipleSelectObj, point)
             break;
         }
     }
