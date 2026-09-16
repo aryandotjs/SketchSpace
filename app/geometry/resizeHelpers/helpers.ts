@@ -75,6 +75,7 @@ export const handleMultipleResizeSideTop = (
     point: Point,
 
 ) => {
+
     const Refobj = ResizeMultipleSelectObj.current
     if (!Refobj || !Refobj.ElementsAndIndex || !Refobj.SnapShotElements || !Refobj.contactPoint || !Refobj.dimentions || !Refobj.snapShotdimentions || !Refobj.movement || !Refobj.point) return
 
@@ -86,6 +87,7 @@ export const handleMultipleResizeSideTop = (
 
     const SnapBoxHeight = bottom - top
     const CrrboxHeight = bottom - point.y
+    if (CrrboxHeight === 0) return
 
     const ratio = CrrboxHeight / SnapBoxHeight
 
@@ -120,6 +122,7 @@ export const handleMultipleResizeSideBottom = (
 
     const SnapBoxHeight = bottom - top
     const CrrboxHeight = point.y - top
+    if (CrrboxHeight === 0) return
 
     const ratio = CrrboxHeight / SnapBoxHeight
 
@@ -141,6 +144,8 @@ export const handleMultipleResizeSideLeft = (
     point: Point,
 
 ) => {
+    console.log("left")
+
     const Refobj = ResizeMultipleSelectObj.current
     if (!Refobj || !Refobj.ElementsAndIndex || !Refobj.SnapShotElements || !Refobj.contactPoint || !Refobj.dimentions || !Refobj.snapShotdimentions || !Refobj.movement || !Refobj.point) return
 
@@ -152,6 +157,8 @@ export const handleMultipleResizeSideLeft = (
 
     const SnapBoxWidth = right - left
     const CrrboxWidth = right - point.x
+    console.log(CrrboxWidth)
+    if (CrrboxWidth === 0) return
 
     const ratio = CrrboxWidth / SnapBoxWidth
 
@@ -173,30 +180,84 @@ export const handleMultipleResizeSideRight = (
     point: Point,
 
 ) => {
-    const Refobj = ResizeMultipleSelectObj.current
-    if (!Refobj || !Refobj.ElementsAndIndex || !Refobj.SnapShotElements || !Refobj.contactPoint || !Refobj.dimentions || !Refobj.snapShotdimentions || !Refobj.movement || !Refobj.point) return
+    // const Refobj = ResizeMultipleSelectObj.current
+    // if (!Refobj || !Refobj.ElementsAndIndex || !Refobj.SnapShotElements || !Refobj.contactPoint || !Refobj.dimentions || !Refobj.snapShotdimentions || !Refobj.movement || !Refobj.point) return
 
-    const { snapShotdimentions, dimentions, SnapShotElements, ElementsAndIndex } = Refobj;
+    // const { snapShotdimentions, dimentions, SnapShotElements, ElementsAndIndex } = Refobj;
+    // const { left, right, top, bottom } = snapShotdimentions
+
+    // if (top == null || left == null || bottom == null || right == null) return
+    // if (dimentions.bottom == null || dimentions.top == null || dimentions.left == null || dimentions.right == null) return
+
+    // const SnapBoxWidth = right - left
+    // const CrrboxWidth = point.x - left
+    // if (CrrboxWidth === 0) return
+
+    // const ratio = CrrboxWidth / SnapBoxWidth
+
+    // SnapShotElements?.forEach((SnapElement, index) => {
+
+    //     const SnapELeXfromRight = SnapElement.x - right;
+    //     const ratioX = SnapELeXfromRight / SnapBoxWidth;
+
+    //     ElementsAndIndex[index].element.x = point.x + (CrrboxWidth * ratioX);
+    //     ElementsAndIndex[index].element.width = SnapElement.width * ratio;
+
+    // })
+    // Refobj.dimentions.right = point.x
+    // Refobj.point = point
+
+    console.log("right")
+    const Refobj = ResizeMultipleSelectObj.current
+
+    if (
+        !Refobj ||
+        !Refobj.ElementsAndIndex ||
+        !Refobj.SnapShotElements ||
+        !Refobj.contactPoint ||
+        !Refobj.dimentions ||
+        !Refobj.snapShotdimentions ||
+        !Refobj.movement ||
+        !Refobj.point
+    ) return
+
+    const { snapShotdimentions, dimentions, SnapShotElements, ElementsAndIndex } = Refobj
     const { left, right, top, bottom } = snapShotdimentions
 
     if (top == null || left == null || bottom == null || right == null) return
-    if (dimentions.bottom == null || dimentions.top == null || dimentions.left == null || dimentions.right == null) return
 
-    const SnapBoxWidth = right - left
-    const CrrboxWidth = point.x - left
+    if (
+        dimentions.bottom == null ||
+        dimentions.top == null ||
+        dimentions.left == null ||
+        dimentions.right == null
+    ) return
+
+    const SnapBoxWidth = Math.round(right - left)
+    const CrrboxWidth = Math.round(point.x - left)
+    console.log(CrrboxWidth)
+    if (CrrboxWidth === 0) return
 
     const ratio = CrrboxWidth / SnapBoxWidth
 
     SnapShotElements?.forEach((SnapElement, index) => {
+        const SnapELeXfromRight = Math.round(SnapElement.x - right)
+        const ratioX = SnapELeXfromRight / SnapBoxWidth
 
-        const SnapELeXfromRight = SnapElement.x - right;
-        const ratioX = SnapELeXfromRight / SnapBoxWidth;
+        ElementsAndIndex[index].element.x = Math.round(
+            point.x + (CrrboxWidth * ratioX)
+        )
 
-        ElementsAndIndex[index].element.x = point.x + (CrrboxWidth * ratioX);
-        ElementsAndIndex[index].element.width = SnapElement.width * ratio;
-
+        ElementsAndIndex[index].element.width = Math.round(
+            SnapElement.width * ratio
+        )
+        console.log(ElementsAndIndex[index].element.x, ElementsAndIndex[index].element.width)
     })
-    Refobj.dimentions.right = point.x
-    Refobj.point = point
+
+    Refobj.dimentions.right = Math.round(point.x)
+    Refobj.point = {
+        x: Math.round(point.x),
+        y: Math.round(point.y)
+    }
 }
 

@@ -1,5 +1,5 @@
 import { drawArrow, drawdiamond, drawEllipse, drawFreedraw, drawLine, drawMutlipleSelectionFrame, drawRectangle, drawSelectionForLine, drawSelectionFrame, drawSelectionFrameDashedSecondaryInputs, drawSelectionFrameWithoutHandles, drawText } from "./drawing"
-import { DimentionsMultipleSelectBox, Element, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType } from "./tools/types"
+import { DimentionsMultipleSelectBox, Element, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, resizeEleObjType } from "./tools/types"
 
 
 export const renderAll = (
@@ -8,11 +8,13 @@ export const renderAll = (
     rect: DOMRect,
     selectedElement: Element | null,
     curruntMoveElementObj: React.RefObject<MoveEleObjType | null>,
+    curruntResizeElement: React.RefObject<resizeEleObjType | null>,
     MultipleSelectObj: React.RefObject<MultipleSelectObjType | null> | null,
     MultipleSelectedElements: Element[] | null,
     DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
     MoveMultipleSelectObj: React.RefObject<MoveMultipleEleObjType | null>,
     ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
+
 
 ) => {
     ctx.clearRect(0, 0, rect.width, rect.height)
@@ -92,6 +94,47 @@ export const renderAll = (
             drawText(ctx, moveElement)
         }
     }
+    if (curruntResizeElement.current) {
+        const moveElement = curruntResizeElement.current.Element
+
+        if (
+            moveElement.type === "rectangle" ||
+            moveElement.type === "diamond" ||
+            moveElement.type === "ellipse" ||
+            moveElement.type === "freedraw"
+        ) {
+            drawSelectionFrame(ctx, moveElement)
+        }
+        if (moveElement.type === "line" || moveElement.type === "arrow") {
+            drawSelectionForLine(ctx, moveElement)
+        }
+
+        if (moveElement.type === "line") {
+            drawLine(ctx, moveElement)
+        }
+        if (moveElement.type === "arrow") {
+            drawArrow(ctx, moveElement)
+        }
+        if (moveElement.type === "freedraw") {
+            drawFreedraw(ctx, moveElement)
+        }
+        if (moveElement.type === "rectangle") {
+            drawRectangle(ctx, moveElement)
+        }
+        if (moveElement.type === "diamond") {
+            drawdiamond(ctx, moveElement)
+        }
+        if (moveElement.type === "ellipse") {
+            drawEllipse(ctx, moveElement)
+        }
+        if (moveElement.type === "text") {
+            drawText(ctx, moveElement)
+        }
+    }
+
+
+
+
 
     if (MultipleSelectObj?.current) {
         drawMutlipleSelectionFrame(ctx, MultipleSelectObj)

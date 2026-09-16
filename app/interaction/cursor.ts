@@ -131,44 +131,37 @@ export const cursorPointerMove = (
     const rect = canvas.getBoundingClientRect()
 
     if (ResizeMultipleSelectObj.current) {
-        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntResizeElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
         HandleResizeMultipleElementsMove(ResizeMultipleSelectObj, MultipleSelectedElements, setMultipleSelectedElements, Elements, setElements, point)
     }
 
     if (curruntMultipleSelectObj.current) {
-        handleMultipleSelectionFrameMove(Elements, point, curruntMultipleSelectObj, canvas, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, curruntMoveElementObj, ResizeMultipleSelectObj)
-        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
+        handleMultipleSelectionFrameMove(Elements, point, curruntMultipleSelectObj, canvas, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, curruntMoveElementObj, curruntResizeElementObj, ResizeMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntResizeElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
     }
     if (MoveMultipleSelectObj.current) {
         handleMultipleSelectMove(point, MoveMultipleSelectObj)
-        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntResizeElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
     }
     if (curruntMoveElementObj.current) {
         if (curruntMoveElementObj.current.movement === "Still") {
-            // if (SelectedElement) {
-            //     undoref.current.push({ elements: Elements, selectedElement: SelectedElement })
-            // }
             const filteredarr = Elements.filter((a, b) => b !== curruntMoveElementObj.current?.index)
             setElements(filteredarr)
             setSelectedElement(null)
             curruntMoveElementObj.current.movement = "Moved"
         }
         moveElement(curruntMoveElementObj, point)
-        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, null, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntResizeElementObj, null, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
     }
     if (curruntResizeElementObj.current) {
         if (curruntResizeElementObj.current.movement === "Still") {
             const filteredarr = Elements.filter((a, b) => b !== curruntResizeElementObj.current?.index)
             setElements(filteredarr)
+            setSelectedElement(null)
             curruntResizeElementObj.current.movement = "Moved"
         }
-        const ctx = canvas?.getContext("2d")
-        if (!ctx) return;
-        const rect = canvas.getBoundingClientRect();
-
         resizeElement(curruntResizeElementObj, point)
-
-        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, null, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntResizeElementObj, null, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
     }
     updateCursor(canvas, point, Elements, SelectedElement, MultipleSelectedElements, DimentionsMutipleSelectionBox)
 }
@@ -191,13 +184,15 @@ export const cursorPointerUp = (
     undoref: React.RefObject<historyBlock[]>
 ) => {
     if (curruntResizeElement.current && curruntResizeElement.current.movement === "Moved") {
-        if (curruntResizeElement.current.Element.type === "freedraw") {
-            curruntResizeElement.current.Element.SnapshotPoints = curruntResizeElement.current.Element.points.map(a => ({ ...a }))
-        }
-        const newarr = [...Elements]
+        // if (curruntResizeElement.current.Element.type === "freedraw") {
+        //     curruntResizeElement.current.Element.SnapshotPoints = curruntResizeElement.current.Element.points.map(a => ({ ...a }))
+        // }
+        const newarr = Elements.map(a => ({ ...a }))
         if (curruntResizeElement.current.index != null) {
             newarr.splice(curruntResizeElement.current.index,
                 0, curruntResizeElement.current.Element)
+            setSelectedElement(curruntResizeElement.current.Element)
+            undoref.current.push({ elements: newarr, selectedElement: curruntResizeElement.current.Element })
             setElements(newarr)
         }
     }
@@ -209,14 +204,12 @@ export const cursorPointerUp = (
         if (curruntMoveElement.current.index != null) {
             newarr.splice(curruntMoveElement.current.index, 0, curruntMoveElement.current.Element)
             setSelectedElement(curruntMoveElement.current.Element)
-
             undoref.current.push({ elements: newarr, selectedElement: curruntMoveElement.current.Element })
-
             setElements(newarr)
         }
     }
     if (curruntMultipleSelectElement.current) {
-        handleMultipleSelectUp(canvas, Elements, curruntMultipleSelectElement, SelectedElement, setSelectedElement, setMultipleSelectedElements, setDimentionsMutipleSelectionBox, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, curruntMoveElement, ResizeMultipleSelectObj)
+        handleMultipleSelectUp(canvas, Elements, curruntMultipleSelectElement, SelectedElement, setSelectedElement, setMultipleSelectedElements, setDimentionsMutipleSelectionBox, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, curruntMoveElement, curruntResizeElement, ResizeMultipleSelectObj)
     }
     if (MoveMultipleSelectObj.current) {
 

@@ -101,7 +101,7 @@ export function Whiteboard() {
     
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0); 
     
-        renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
+        renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
         }; 
     
         resize(); 
@@ -213,28 +213,28 @@ export function Whiteboard() {
         }
 
         if (curruntLine.current && tool === "Line") {
-            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
             linePointerMove(curruntLine,ctx,point)
         }
         if (curruntArrow.current && tool === "Arrow") {
-            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
             arrowPointerMove(curruntArrow,ctx,point)
         }
         if (curruntStroke.current && tool === "Freedraw") {
-            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
             pencilPointerMove(curruntStroke,ctx,point)
         }
         
         if (curruntRectangle.current && tool === "Rectangle") {
-            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
             rectanglePointerMove(curruntRectangle,ctx,point)            
         }
         if (curruntDiamond.current && tool === "Diamond") {
-            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
             diamondPointerMove(curruntDiamond,ctx,point)            
         }
         if (curruntEllipse.current && tool === "Ellipse") {
-            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
             ellipsePointerMove(curruntEllipse,ctx,point)            
         }
         if (ErasedElementIds.current && previousPointRef.current && tool === "Eraser") {

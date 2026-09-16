@@ -58,11 +58,12 @@ export const findResizeSideAndAddResizeRef = (
     point: Point,
     Elements: Element[],
     curruntResizeElement: React.RefObject<resizeEleObjType | null>,
-    setSelectedElement: Dispatch<SetStateAction<Element | null>>) => {
+    setSelectedElement: Dispatch<SetStateAction<Element | null>>
+) => {
 
     let touched = false
     const ResizeElementObj: resizeEleObjType = {
-        Element: SelectedElement,
+        Element: { ...SelectedElement },
         index: null,
         top: SelectedElement.y,
         bottom: SelectedElement.y - SelectedElement.height,
@@ -364,7 +365,6 @@ export function HandleResizeMultipleElementsMove(
     setElements: Dispatch<SetStateAction<Element[]>>,
     point: Point,
 ) {
-    console.log("iwas reere")
     if (ResizeMultipleSelectObj.current?.movement === "Still") {
         const MuseSet = new Set(MultipleSelectedElements?.map(a => a.id))
         const filtered: Element[] = []

@@ -67,7 +67,7 @@ export const handleKeydown = (
             const lastSeledtedELe = undoref.current[length - 1].selectedElement
             setElements(lasteleoFarr)
             setSelectedElement({ ...lastSeledtedELe })
-
+            return
         }
         if (undoref.current && undoref.current.length === 1) {
             const LastEle = undoref.current.pop()
