@@ -180,5 +180,7 @@ export type DimentionsMultipleSelectBox = {
 
 export type historyBlock = {
     elements: Element[],
-    selectedElement: Element
+    selectedElement: Element | null,
+    multipleSelectedElements: Element[] | null,
+    multipleSelectedDimentions: DimentionsMultipleSelectBox | null
 } 

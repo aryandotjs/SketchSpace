@@ -2,6 +2,7 @@ import React, { Dispatch, SetStateAction } from "react";
 import { DimentionsMultipleSelectBox, Element, MoveEleObjType, MoveMultipleEleObjType, Point } from "../lib/whiteboard/tools/types";
 import { ispointInBoundedBox } from "../lib/whiteboard/tools/rectangle";
 import { isPointNearLine } from "../geometry/hitTest";
+import { fullCopyOfSingleElement } from "../helpers/helper";
 
 
 export const moveElement = (curruntMoveElementObj: React.RefObject<MoveEleObjType | null>, point: Point) => {
@@ -35,7 +36,7 @@ export const findMoveTargetAndAddMoveRef = (SelectedElement: Element, point: Poi
         if (ispointInBoundedBox(SelectedElement.x, SelectedElement.y, SelectedElement.height, SelectedElement.width, point)) {
             const MoveElementObj: MoveEleObjType = {
                 point,
-                Element: { ...SelectedElement },
+                Element: fullCopyOfSingleElement(SelectedElement),
                 index: null,
                 fromTop: point.y - SelectedElement.y,
                 fromLeft: point.x - SelectedElement.x,
@@ -50,26 +51,25 @@ export const findMoveTargetAndAddMoveRef = (SelectedElement: Element, point: Poi
         }
     }
 
-    // if (SelectedElement.type === "line" || SelectedElement.type === "arrow") {
+    if (SelectedElement.type === "line" || SelectedElement.type === "arrow") {
 
-    //     if (isPointNearLine(SelectedElement.x, SelectedElement.y, SelectedElement.height, SelectedElement.width, point)) {
-    //         const MoveElementObj: MoveEleObjType = {
-    //             point,
-    //             Element: SelectedElement,
-    //             index: null,
-    //             fromTop: point.y - SelectedElement.y,
-    //             fromLeft: point.x - SelectedElement.x,
-    //             movement: "Still"
-    //         }
-    //         const index = Elements.findIndex((a) => a.id === SelectedElement.id)
-    //         if (index >= 0) {
-    //             MoveElementObj.index = index
-    //             curruntMoveElement.current = MoveElementObj
-    //         }
-    //         touched = true
-
-    //     }
-    // }
+        if (isPointNearLine(SelectedElement.x, SelectedElement.y, SelectedElement.height, SelectedElement.width, point)) {
+            const MoveElementObj: MoveEleObjType = {
+                point,
+                Element: fullCopyOfSingleElement(SelectedElement),
+                index: null,
+                fromTop: point.y - SelectedElement.y,
+                fromLeft: point.x - SelectedElement.x,
+                movement: "Still"
+            }
+            const index = Elements.findIndex((a) => a.id === SelectedElement.id)
+            if (index >= 0) {
+                MoveElementObj.index = index
+                curruntMoveElement.current = MoveElementObj
+            }
+            touched = true
+        }
+    }
 
     return touched
 }
@@ -98,7 +98,7 @@ export const HandleMoveMultipleElementsDown = (
         const MoveMultipeObj: MoveMultipleEleObjType = {
             point,
             ElementsAndIndex: null,
-            DimentionBox: DimentionsMutipleSelectionBox,
+            DimentionBox: { ...DimentionsMutipleSelectionBox },
             fromTop: point.y - DimentionsMutipleSelectionBox.top,
             fromLeft: point.x - DimentionsMutipleSelectionBox.left,
             movement: "Still"
@@ -107,9 +107,9 @@ export const HandleMoveMultipleElementsDown = (
 
         const EleAndIdx: { element: Element, index: number }[] = []
 
-        const filtered = Elements.filter((e, i) => {
+        Elements.forEach((e, i) => {
             if (newSet.has(e.id)) {
-                EleAndIdx.push({ element: e, index: i })
+                EleAndIdx.push({ element: fullCopyOfSingleElement(e), index: i })
             }
             return !newSet.has(e.id)
         })
@@ -119,7 +119,6 @@ export const HandleMoveMultipleElementsDown = (
         }
 
         MoveMultipleSelectObj.current = MoveMultipeObj
-        setElements(filtered)
 
         touched = true
     }

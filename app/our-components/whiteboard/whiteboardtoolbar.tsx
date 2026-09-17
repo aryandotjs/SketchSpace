@@ -21,48 +21,98 @@ import {
 import { Dispatch, SetStateAction, useState } from 'react';
 import { Tool } from '@/app/lib/whiteboard/tools';
 import { AiMenuDropdown, MainMenuDropdown } from '../toolbar/Dropdowns';
+import { DimentionsMultipleSelectBox, Element, historyBlock } from '@/app/lib/whiteboard/tools/types';
+import { toolChangeHandler } from '@/app/interaction/selection/toolchange';
 
-export function ToggleToolbar({settool,tool}:{settool:Dispatch<SetStateAction<Tool>>,tool:string}) {
+export function ToggleToolbar({
+    settool,
+    tool,
+    setSelectedElement,
+    Elements,
+    setElements,
+    undoref,
+    setDimentionsMutipleSelectionBox,
+    setMultipleSelectedElements
+  }
+  :{
+    settool:Dispatch<SetStateAction<Tool>>,
+    tool:string,
+    setSelectedElement: Dispatch<SetStateAction<Element| null>>,
+    Elements: Element[],
+    setElements: Dispatch<SetStateAction<Element[]>>,
+     undoref: React.RefObject<historyBlock[]>,
+    setDimentionsMutipleSelectionBox: Dispatch<SetStateAction<DimentionsMultipleSelectBox | null>>,
+    setMultipleSelectedElements: Dispatch<SetStateAction<Element[] | null>>,
+  }) {
   return (
     <div className="absolute top-4 w-full flex justify-center pointer-events-none ">
         <div className=" bg-gray-600 border-[0.5px] p-1 h-11  w-min  border-black/10  item-center   rounded-md pointer-events-auto flex shadow-[0_20px_20px_-10px_rgba(0,0,0,0.03)]">
             <div className=' flex items-center'>
               {/* <AiMenuDropdown ></AiMenuDropdown> */}
             </div>
-            <ToggleGroup spacing={1} >
-
+            <ToggleGroup spacing={2.5} value={[tool]} >
                 {/* <div className="border-l mx-1 h-5 border-black/10"/>  */}
-
-                {/* <ToggleGroupItem onClick={()=>settool("hand")} value="hand" aria-label="Toggle strikethrough">
+                {/* <ToggleGroupItem onClick={()=>settool("None")} value="hand" aria-label="Toggle strikethrough">
                   <Hand fill={tool === "hand" ? "#000" : "#F5F5F5"} />
                 </ToggleGroupItem> */}
 
-                <ToggleGroupItem onClick={()=>settool("Cursor")} value="Cursor" aria-label="Toggle strikethrough">
+                <ToggleGroupItem className={"relative"} onClick={()=>settool("Cursor")} value="Cursor" aria-label="Toggle strikethrough">
                   <MousePointer strokeWidth={1.5}  fill={tool === "Cursor" ? "#000" : "#fff"} />
+                  <div className='absolute bottom-[-1] right-0.5 text-[12px]'>V</div>
+
                 </ToggleGroupItem>
 
-                <ToggleGroupItem onClick={()=>settool("Rectangle")}  value="Rectangle" aria-label="Toggle strikethrough">
+                <ToggleGroupItem className={"relative"} onClick={()=>{
+                  toolChangeHandler(setSelectedElement,Elements,setElements,undoref,setDimentionsMutipleSelectionBox,setMultipleSelectedElements)
+                  settool("Rectangle")
+                 }}  value="Rectangle" aria-label="Toggle strikethrough">
                   <Square  strokeWidth={1.5}  fill={tool === "Rectangle" ? "#000" : "#fff"}/>
+                  <div className='absolute bottom-[-1] right-0.5 text-[12px]'>R</div>
                 </ToggleGroupItem>
 
-                <ToggleGroupItem onClick={()=>settool("Diamond")} value="Diamond" aria-label="Toggle strikethrough">
+                <ToggleGroupItem className={"relative"} onClick={()=>{
+                  settool("Diamond")
+                  toolChangeHandler(setSelectedElement,Elements,setElements,undoref,setDimentionsMutipleSelectionBox,setMultipleSelectedElements)
+                  }} value="Diamond" aria-label="Toggle strikethrough">
                   <Diamond  strokeWidth={1.5}  fill={tool === "Diamond" ? "#000" : "#fff"}/>
+                  <div className='absolute bottom-[-1] right-0.5 text-[12px]'>D</div>
+
                 </ToggleGroupItem>
 
-                <ToggleGroupItem onClick={()=>settool("Ellipse")} value="Ellipse" aria-label="Toggle italic">
+                <ToggleGroupItem className={"relative"} onClick={()=>{
+                  settool("Ellipse")
+                  toolChangeHandler(setSelectedElement,Elements,setElements,undoref,setDimentionsMutipleSelectionBox,setMultipleSelectedElements)
+                  }} value="Ellipse" aria-label="Toggle italic">
                   <Circle  strokeWidth={1.5}  fill={tool === "Ellipse" ? "#000" : "#fff"}/>
+                  <div className='absolute bottom-[-1] right-0.5 text-[12px]'>O</div>
+
                 </ToggleGroupItem>
 
-                <ToggleGroupItem onClick={()=>settool("Arrow")} value="Arrow" aria-label="Toggle strikethrough">
+                <ToggleGroupItem className={"relative"} onClick={()=>{
+                  settool("Arrow")
+                  toolChangeHandler(setSelectedElement,Elements,setElements,undoref,setDimentionsMutipleSelectionBox,setMultipleSelectedElements)
+                  }} value="Arrow" aria-label="Toggle strikethrough">
                   <ArrowRight  strokeWidth={1.5}/>
+                  <div className='absolute bottom-[-1] right-0.5 text-[12px]'>A</div>
+
                 </ToggleGroupItem>
                 
-                <ToggleGroupItem onClick={()=>settool("Line")} value="Line" aria-label="Toggle strikethrough">
+                <ToggleGroupItem className={"relative"} onClick={()=>{
+                  settool("Line")
+                  toolChangeHandler(setSelectedElement,Elements,setElements,undoref,setDimentionsMutipleSelectionBox,setMultipleSelectedElements)
+                  }} value="Line" aria-label="Toggle strikethrough">
                   <Minus  strokeWidth={1.5}/>
+                  <div className='absolute bottom-[-1] right-0.5 text-[12px]'>L</div>
+
                 </ToggleGroupItem>
 
-                <ToggleGroupItem onClick={()=>settool("Freedraw")} value="Pencil" aria-label="Toggle bold" >
+                <ToggleGroupItem className={"relative"}onClick={()=>{
+                  settool("Freedraw")
+                  toolChangeHandler(setSelectedElement,Elements,setElements,undoref,setDimentionsMutipleSelectionBox,setMultipleSelectedElements)
+                  }} value="Freedraw" aria-label="Toggle bold" >
                   <Pencil  strokeWidth={1.5}/>
+                  <div className='absolute bottom-[-1] right-0.5 text-[12px]'>P</div>
+
                 </ToggleGroupItem>
 
                 {/* <ToggleGroupItem onClick={()=>settool("Text")} value="Text" aria-label="Toggle strikethrough">
@@ -72,8 +122,13 @@ export function ToggleToolbar({settool,tool}:{settool:Dispatch<SetStateAction<To
                   <Image  strokeWidth={1.5}/>
                 </ToggleGroupItem>  */}
 
-                <ToggleGroupItem onClick={()=>settool("Eraser")} value="Eraser" aria-label="Toggle strikethrough">
+                <ToggleGroupItem className={"relative"} onClick={()=>{
+                  settool("Eraser")
+                  toolChangeHandler(setSelectedElement,Elements,setElements,undoref,setDimentionsMutipleSelectionBox,setMultipleSelectedElements)
+                  }} value="Eraser" aria-label="Toggle strikethrough">
                   <Eraser  strokeWidth={1.5}/>
+                  <div className='absolute bottom-[-1] right-0.5 text-[12px]'>E</div>
+
                 </ToggleGroupItem>
 
                 {/* <div className="border-l h-5 mx-1 border-black/10"/> */}

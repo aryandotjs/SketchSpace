@@ -1,8 +1,10 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { nanoid } from "nanoid";
-import { ArrowElement, Element, Point, StrokeStyle } from "./types";
+import { ArrowElement, Element, historyBlock, Point, StrokeStyle } from "./types";
 import { drawArrow } from "../drawing";
 import { Tool } from "../tools";
+import { generalize } from "@/app/geometry/generalize";
+import { fullCopyOfElements, fullCopyOfSingleElement } from "@/app/helpers/helper";
 
 
 
@@ -37,12 +39,38 @@ export const arrowPointerMove = (
     drawArrow(ctx, arrow);
 }
 
-export const arrowPointerUp = (curruntarrow: React.RefObject<ArrowElement | null>, setElements: Dispatch<SetStateAction<Element[]>>, settool: Dispatch<SetStateAction<Tool>>, setSelectedElement: Dispatch<SetStateAction<Element | null>>) => {
+export const arrowPointerUp = (curruntarrow: React.RefObject<ArrowElement | null>,
+    setElements: Dispatch<SetStateAction<Element[]>>,
+    settool: Dispatch<SetStateAction<Tool>>,
+    setSelectedElement: Dispatch<SetStateAction<Element | null>>,
+    elements: Element[],
+    undoref: React.RefObject<historyBlock[]>,
+    redoref: React.RefObject<historyBlock[]>,
+
+) => {
     if (!curruntarrow) return
     const arrow = curruntarrow.current
     if (!arrow) return
-    setElements((prev) => ([...prev, arrow]))
-    setSelectedElement(curruntarrow.current)
+    if (arrow.height === 0 && arrow.width === 0) {
+        curruntarrow.current = null
+        return
+    }
+    const copyelement = fullCopyOfSingleElement(arrow)
+
+    const copy = fullCopyOfElements(elements)
+
+    copy.push(copyelement)
+
+    undoref.current.push({
+        elements: copy,
+        selectedElement: copyelement,
+        multipleSelectedElements: null,
+        multipleSelectedDimentions: null
+    })
+    redoref.current = []
+    setElements(copy)
+    setSelectedElement(copyelement)
+
     curruntarrow.current = null
     settool("Cursor")
 }

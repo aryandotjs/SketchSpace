@@ -4,7 +4,8 @@ import { hitTest, isPointNearLine, isPointOnBottomLeftSquare, isPointOnBottomRig
 import { ispointInBoundedBox } from "../lib/whiteboard/tools/rectangle"
 import { Box } from "lucide-react"
 import { renderAll } from "../lib/whiteboard/render"
-import { handleMultipleResizeSideBottom, handleMultipleResizeSideLeft, handleMultipleResizeSideRight, handleMultipleResizeSideTop, handleResizeLeftCircle, handleResizeRightCircle, handleResizeSideBottom, handleResizeSideLeft, handleResizeSideRight, handleResizeSideTop, handleResizeSquareBottomLeft, handleResizeSquareBottomRight, handleResizeSquareTopLeft, handleResizeSquareTopRight } from "./resizeHelpers/helpers"
+import { handleMultipleResizeBottomLeftSquare, handleMultipleResizeBottomRightSquare, handleMultipleResizeSideBottom, handleMultipleResizeSideLeft, handleMultipleResizeSideRight, handleMultipleResizeSideTop, handleMultipleResizeTopLeftSquare, handleMultipleResizeTopRightSquare, handleResizeLeftCircle, handleResizeRightCircle, handleResizeSideBottom, handleResizeSideLeft, handleResizeSideRight, handleResizeSideTop, handleResizeSquareBottomLeft, handleResizeSquareBottomRight, handleResizeSquareTopLeft, handleResizeSquareTopRight } from "./resizeHelpers/helpers"
+import { fullCopyOfElements, fullCopyOfSingleElement } from "../helpers/helper"
 
 const offby = 5
 
@@ -63,7 +64,7 @@ export const findResizeSideAndAddResizeRef = (
 
     let touched = false
     const ResizeElementObj: resizeEleObjType = {
-        Element: { ...SelectedElement },
+        Element: fullCopyOfSingleElement(SelectedElement),
         index: null,
         top: SelectedElement.y,
         bottom: SelectedElement.y - SelectedElement.height,
@@ -312,8 +313,8 @@ export function HandleResizeMultipleElementDown(
         point: point,
         dimentions: { ...DimentionsMutipleSelectionBox },
         snapShotdimentions: { ...DimentionsMutipleSelectionBox },
-        ElementsAndIndex: MultipleSelectedElements?.map((a, i) => ({ element: { ...a }, index: i })),
-        SnapShotElements: MultipleSelectedElements.map(a => ({ ...a })),
+        ElementsAndIndex: MultipleSelectedElements?.map((a, i) => ({ element: fullCopyOfSingleElement(a), index: i })),
+        SnapShotElements: fullCopyOfElements(MultipleSelectedElements),
         movement: "Still",
         contactPoint: "none",
     }
@@ -354,6 +355,7 @@ export function HandleResizeMultipleElementDown(
         touched = true
         ResizeMultipleSelectObj.current = MultipleElementResizeObj
     }
+
     return touched
 }
 
@@ -361,6 +363,7 @@ export function HandleResizeMultipleElementsMove(
     ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
     MultipleSelectedElements: Element[] | null,
     setMultipleSelectedElements: Dispatch<SetStateAction<Element[] | null>>,
+    setDimentionsMutipleSelectionBox: Dispatch<SetStateAction<DimentionsMultipleSelectBox | null>>,
     Elements: Element[],
     setElements: Dispatch<SetStateAction<Element[]>>,
     point: Point,
@@ -370,11 +373,12 @@ export function HandleResizeMultipleElementsMove(
         const filtered: Element[] = []
         Elements.forEach((a) => {
             if (!MuseSet.has(a.id)) {
-                filtered.push({ ...a })
+                filtered.push(fullCopyOfSingleElement(a))
             }
         })
         setElements(filtered)
         setMultipleSelectedElements(null)
+        setDimentionsMutipleSelectionBox(null)
         ResizeMultipleSelectObj.current.movement = "Moved"
     }
     switch (ResizeMultipleSelectObj.current?.contactPoint) {
@@ -399,23 +403,19 @@ export function HandleResizeMultipleElementsMove(
         }
 
         case "TopLeftSquare": {
-            handleMultipleResizeSideTop(ResizeMultipleSelectObj, point)
-            handleMultipleResizeSideLeft(ResizeMultipleSelectObj, point)
+            handleMultipleResizeTopLeftSquare(ResizeMultipleSelectObj, point)
             break;
         }
         case "TopRightSquare": {
-            handleMultipleResizeSideTop(ResizeMultipleSelectObj, point)
-            handleMultipleResizeSideRight(ResizeMultipleSelectObj, point)
+            handleMultipleResizeTopRightSquare(ResizeMultipleSelectObj, point)
             break;
         }
         case "BottomLeftSquare": {
-            handleMultipleResizeSideBottom(ResizeMultipleSelectObj, point)
-            handleMultipleResizeSideLeft(ResizeMultipleSelectObj, point)
+            handleMultipleResizeBottomLeftSquare(ResizeMultipleSelectObj, point)
             break;
         }
         case "BottomRightSquare": {
-            handleMultipleResizeSideBottom(ResizeMultipleSelectObj, point)
-            handleMultipleResizeSideRight(ResizeMultipleSelectObj, point)
+            handleMultipleResizeBottomRightSquare(ResizeMultipleSelectObj, point)
             break;
         }
     }

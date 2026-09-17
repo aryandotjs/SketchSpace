@@ -6,6 +6,7 @@ import { findResizeSideAndAddResizeRef, HandleResizeMultipleElementDown, HandleR
 import { findMoveTargetAndAddMoveRef, HandleMoveMultipleElementsDown, moveElement } from "./move"
 import { updateCursor } from "../geometry/updateCursor"
 import { getMultipleSectionsDimentionsSecondary, handleMultipleSelectDown, handleMultipleSelectionFrameMove, handleMultipleSelectMove, handleMultipleSelectUp } from "./selection/selection"
+import { fullCopyOfElements, fullCopyOfSingleElement } from "../helpers/helper"
 
 
 
@@ -25,33 +26,46 @@ export const cursorPointerDown = (
     setDimentionsMutipleSelectionBox: Dispatch<SetStateAction<DimentionsMultipleSelectBox | null>>,
     MoveMultipleSelectObj: React.RefObject<MoveMultipleEleObjType | null>,
     ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
+    undoref: React.RefObject<historyBlock[]>
 
 ) => {
 
-    // remove the multiple selected
     if (!SelectedElement && !MultipleSelectedElements) {
         const element = hitTest(point, Elements)
         if (!element) {
-            setSelectedElement(null)
             curruntMultipleSelectObj.current = handleMultipleSelectDown(point)
             return
         }
         if (element) {
-            setSelectedElement(element)
+            const copy = fullCopyOfElements(Elements)
+            const copyelement = fullCopyOfSingleElement(element)
+            undoref.current.push({
+                elements: copy,
+                selectedElement: copyelement,
+                multipleSelectedElements: null,
+                multipleSelectedDimentions: null
+            })
+            setSelectedElement(copyelement)
         }
     }
 
     if (MultipleSelectedElements) {
+
         if (HandleMoveMultipleElementsDown(DimentionsMutipleSelectionBox, MultipleSelectedElements, setMultipleSelectedElements, point, Elements, setElements, MoveMultipleSelectObj)) {
             return
         }
         if (HandleResizeMultipleElementDown(DimentionsMutipleSelectionBox, MultipleSelectedElements, setMultipleSelectedElements, point, ResizeMultipleSelectObj, Elements, setElements)) {
             return
         }
-
-
         const element = hitTest(point, Elements)
         if (!element) {
+            const copy = fullCopyOfElements(Elements)
+            undoref.current.push({
+                elements: copy,
+                selectedElement: null,
+                multipleSelectedElements: null,
+                multipleSelectedDimentions: null
+            })
             setMultipleSelectedElements(null)
             setDimentionsMutipleSelectionBox(null)
             curruntMultipleSelectObj.current = null
@@ -59,16 +73,19 @@ export const cursorPointerDown = (
             return
         }
         if (element && event.shiftKey) {
-            setMultipleSelectedElements((prev) => {
-                const currunt = prev ?? []
-                const set = new Set(currunt)
-                if (set.has(element)) {
-                    return [...currunt]
-                }
-                getMultipleSectionsDimentionsSecondary(setDimentionsMutipleSelectionBox, [...currunt, element])
-                return [...currunt, element]
+            const copyallElement = fullCopyOfElements(Elements)
+            const copy = fullCopyOfElements(MultipleSelectedElements)
+            copy.push(fullCopyOfSingleElement(element))
+
+            const newdimention = getMultipleSectionsDimentionsSecondary(setDimentionsMutipleSelectionBox, copy)
+            undoref.current.push({
+                elements: copyallElement,
+                selectedElement: null,
+                multipleSelectedElements: copy,
+                multipleSelectedDimentions: newdimention ?? null
             })
 
+            setMultipleSelectedElements(copy)
             return
         }
         setSelectedElement(element)
@@ -88,21 +105,42 @@ export const cursorPointerDown = (
         const element = hitTest(point, Elements)
         if (!element) {
             setSelectedElement(null)
+            const copy = fullCopyOfElements(Elements)
+            undoref.current.push({
+                elements: copy,
+                selectedElement: null,
+                multipleSelectedElements: null,
+                multipleSelectedDimentions: null
+            })
             curruntMultipleSelectObj.current = handleMultipleSelectDown(point)
         }
         if (element && event.shiftKey) {
-            setMultipleSelectedElements((prev) => {
-                if (!prev) {
-                    getMultipleSectionsDimentionsSecondary(setDimentionsMutipleSelectionBox, [SelectedElement, element])
-                    return [element, SelectedElement]
-                }
-                return prev
+
+            const copyallELe = fullCopyOfElements(Elements)
+            const copy = [fullCopyOfSingleElement(SelectedElement), fullCopyOfSingleElement(element)]
+
+            const newdimention = getMultipleSectionsDimentionsSecondary(setDimentionsMutipleSelectionBox, copy)
+            undoref.current.push({
+                elements: copyallELe,
+                selectedElement: null,
+                multipleSelectedElements: copy,
+                multipleSelectedDimentions: newdimention ?? null
             })
+
+            setMultipleSelectedElements(copy)
             setSelectedElement(null)
             return
         }
         if (element) {
-            setSelectedElement(element)
+            const copy = fullCopyOfElements(Elements)
+            const copyelement = fullCopyOfSingleElement(element)
+            undoref.current.push({
+                elements: copy,
+                selectedElement: copyelement,
+                multipleSelectedElements: null,
+                multipleSelectedDimentions: null
+            })
+            setSelectedElement(copyelement)
             return
         }
     }
@@ -121,6 +159,7 @@ export const cursorPointerMove = (
     MultipleSelectedElements: Element[] | null,
     setMultipleSelectedElements: Dispatch<SetStateAction<Element[] | null>>,
     DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
+    setDimentionsMutipleSelectionBox: Dispatch<SetStateAction<DimentionsMultipleSelectBox | null>>,
     MoveMultipleSelectObj: React.RefObject<MoveMultipleEleObjType | null>,
     ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
     undoref: React.RefObject<historyBlock[]>
@@ -132,14 +171,21 @@ export const cursorPointerMove = (
 
     if (ResizeMultipleSelectObj.current) {
         renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntResizeElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
-        HandleResizeMultipleElementsMove(ResizeMultipleSelectObj, MultipleSelectedElements, setMultipleSelectedElements, Elements, setElements, point)
+        HandleResizeMultipleElementsMove(ResizeMultipleSelectObj, MultipleSelectedElements, setMultipleSelectedElements, setDimentionsMutipleSelectionBox, Elements, setElements, point)
     }
-
     if (curruntMultipleSelectObj.current) {
         handleMultipleSelectionFrameMove(Elements, point, curruntMultipleSelectObj, canvas, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, curruntMoveElementObj, curruntResizeElementObj, ResizeMultipleSelectObj)
         renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntResizeElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
     }
     if (MoveMultipleSelectObj.current) {
+        if (MoveMultipleSelectObj.current.movement === "Still") {
+            const newSet = new Set(MultipleSelectedElements?.map((a => a.id)))
+            const filteredarr = Elements.filter((a, b) => !newSet.has(a.id))
+            setElements(filteredarr)
+            setMultipleSelectedElements(null)
+            setDimentionsMutipleSelectionBox(null)
+            MoveMultipleSelectObj.current.movement = "Moved"
+        }
         handleMultipleSelectMove(point, MoveMultipleSelectObj)
         renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntResizeElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
     }
@@ -181,64 +227,113 @@ export const cursorPointerUp = (
     DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
     MoveMultipleSelectObj: React.RefObject<MoveMultipleEleObjType | null>,
     ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
-    undoref: React.RefObject<historyBlock[]>
+    undoref: React.RefObject<historyBlock[]>,
+    redoref: React.RefObject<historyBlock[]>
 ) => {
+    if (curruntMultipleSelectElement.current) {
+        handleMultipleSelectUp(canvas,
+            Elements,
+            curruntMultipleSelectElement,
+            SelectedElement,
+            setSelectedElement,
+            setMultipleSelectedElements,
+            setDimentionsMutipleSelectionBox,
+            MultipleSelectedElements,
+            DimentionsMutipleSelectionBox,
+            MoveMultipleSelectObj,
+            curruntMoveElement,
+            curruntResizeElement,
+            ResizeMultipleSelectObj,
+            undoref
+        )
+    }
+
     if (curruntResizeElement.current && curruntResizeElement.current.movement === "Moved") {
-        // if (curruntResizeElement.current.Element.type === "freedraw") {
-        //     curruntResizeElement.current.Element.SnapshotPoints = curruntResizeElement.current.Element.points.map(a => ({ ...a }))
-        // }
-        const newarr = Elements.map(a => ({ ...a }))
+        if (curruntResizeElement.current.Element.type === "freedraw") {
+            curruntResizeElement.current.Element.SnapshotPoints = curruntResizeElement.current.Element.points.map(a => ({ ...a }))
+        }
+        const copy = fullCopyOfElements(Elements)
+        const copyelement = fullCopyOfSingleElement(curruntResizeElement.current.Element)
         if (curruntResizeElement.current.index != null) {
-            newarr.splice(curruntResizeElement.current.index,
+            copy.splice(curruntResizeElement.current.index,
                 0, curruntResizeElement.current.Element)
-            setSelectedElement(curruntResizeElement.current.Element)
-            undoref.current.push({ elements: newarr, selectedElement: curruntResizeElement.current.Element })
-            setElements(newarr)
+            setSelectedElement(copyelement)
+            undoref.current.push({
+                elements: copy,
+                selectedElement: copyelement,
+                multipleSelectedElements: null,
+                multipleSelectedDimentions: null
+            })
+            redoref.current = []
+            setElements(copy)
         }
     }
     if (curruntMoveElement.current && curruntMoveElement.current.movement === "Moved") {
-        // if (curruntMoveElement.current.Element.type === "freedraw") {
-        //     curruntMoveElement.current.Element.SnapshotPoints = curruntMoveElement.current.Element.points.map(a => ({ ...a }))
-        // }
-        const newarr = Elements.map(a => ({ ...a }))
+        if (curruntMoveElement.current.Element.type === "freedraw") {
+            curruntMoveElement.current.Element.SnapshotPoints = curruntMoveElement.current.Element.points.map(point => ({ ...point }))
+        }
+        const copy = fullCopyOfElements(Elements)
+        const copyelement = fullCopyOfSingleElement(curruntMoveElement.current.Element)
         if (curruntMoveElement.current.index != null) {
-            newarr.splice(curruntMoveElement.current.index, 0, curruntMoveElement.current.Element)
-            setSelectedElement(curruntMoveElement.current.Element)
-            undoref.current.push({ elements: newarr, selectedElement: curruntMoveElement.current.Element })
-            setElements(newarr)
+            copy.splice(curruntMoveElement.current.index, 0, copyelement)
+            setSelectedElement(copyelement)
+            undoref.current.push({
+                elements: copy,
+                selectedElement: copyelement,
+                multipleSelectedElements: null,
+                multipleSelectedDimentions: null
+            })
+            redoref.current = []
+            setElements(copy)
         }
     }
-    if (curruntMultipleSelectElement.current) {
-        handleMultipleSelectUp(canvas, Elements, curruntMultipleSelectElement, SelectedElement, setSelectedElement, setMultipleSelectedElements, setDimentionsMutipleSelectionBox, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, curruntMoveElement, curruntResizeElement, ResizeMultipleSelectObj)
-    }
-    if (MoveMultipleSelectObj.current) {
+    if (MoveMultipleSelectObj.current && MoveMultipleSelectObj.current.movement === "Moved") {
 
         const obj = MoveMultipleSelectObj.current
         const DimentionBox = obj.DimentionBox
         const EleAndIdx = obj.ElementsAndIndex
 
-        const final = [...Elements]
+        const final = fullCopyOfElements(Elements)
+        const mulSelEle: Element[] = []
         EleAndIdx?.forEach(a => {
-            final.splice(a.index, 0, a.element)
+            final.splice(a.index, 0, fullCopyOfSingleElement(a.element))
+            mulSelEle.push(fullCopyOfSingleElement(a.element))
         })
+        undoref.current.push({
+            elements: final,
+            selectedElement: null,
+            multipleSelectedElements: mulSelEle,
+            multipleSelectedDimentions: DimentionBox
+        })
+
         setElements(final)
+        setMultipleSelectedElements(mulSelEle)
         setDimentionsMutipleSelectionBox(DimentionBox)
         MoveMultipleSelectObj.current = null
     }
-    if (ResizeMultipleSelectObj.current) {
+    if (ResizeMultipleSelectObj.current && ResizeMultipleSelectObj.current.movement === "Moved") {
         const obj = ResizeMultipleSelectObj.current
         const DimentionBox = obj.dimentions
         const EleAndIdx = obj.ElementsAndIndex
-        if (!EleAndIdx) { return }
+        if (!EleAndIdx) {
+            MoveMultipleSelectObj.current = null
+            return
+        }
 
-        const final = Elements.map(a => ({ ...a }))
+        const copy = fullCopyOfElements(Elements)
         EleAndIdx?.forEach(a => {
-            final.splice(a.index, 0, a.element)
+            copy.splice(a.index, 0, a.element)
         })
-        const multiSeEle = EleAndIdx?.map((a) => {
-            return { ...a.element }
+        const multiSeEle = EleAndIdx?.map((a) => a.element)
+
+        undoref.current.push({
+            elements: copy,
+            selectedElement: null,
+            multipleSelectedElements: multiSeEle,
+            multipleSelectedDimentions: DimentionBox
         })
-        setElements(final)
+
+        setElements(copy)
         setMultipleSelectedElements(multiSeEle)
         setDimentionsMutipleSelectionBox(DimentionBox)
         MoveMultipleSelectObj.current = null
@@ -246,8 +341,5 @@ export const cursorPointerUp = (
     curruntResizeElement.current = null
     curruntMoveElement.current = null
     ResizeMultipleSelectObj.current = null
+    MoveMultipleSelectObj.current = null
 }
-
-
-
-

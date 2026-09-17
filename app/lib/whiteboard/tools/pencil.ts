@@ -1,7 +1,8 @@
 import React, { Dispatch, SetStateAction } from "react";
-import { Element, FreedrawElement, Point, StrokeStyle } from "./types";
+import { Element, FreedrawElement, historyBlock, Point, StrokeStyle } from "./types";
 import { nanoid } from "nanoid";
 import { drawFreedraw } from "../drawing";
+import { fullCopyOfElements, fullCopyOfSingleElement } from "@/app/helpers/helper";
 
 
 
@@ -11,7 +12,7 @@ export const pencilPointerDown = (point: Point, strokeColor: string, strokeWidth
         type: "freedraw",
         x: point.x,
         y: point.y,
-        points: [],
+        points: [point],
         SnapshotPoints: [],
         height: 0,
         width: 0,
@@ -37,17 +38,29 @@ export const pencilPointerMove = (
     drawFreedraw(ctx, stroke);
 }
 
-export const pencilPointerUp = (curruntStroke: React.RefObject<FreedrawElement | null>, setElements: Dispatch<SetStateAction<Element[]>>) => {
+export const pencilPointerUp = (curruntStroke: React.RefObject<FreedrawElement | null>, setElements: Dispatch<SetStateAction<Element[]>>, elements: Element[],
+    undoref: React.RefObject<historyBlock[]>, redoref: React.RefObject<historyBlock[]>) => {
     if (!curruntStroke) return
     const stroke = curruntStroke.current
     if (!stroke) return
-    const final = createEdgesForFreedraw(stroke)
-    final.SnapshotPoints = final.points.map(point => ({
-        ...point
-    }))
-    if (final.points.length > 0) {
-        setElements((prev) => ([...prev, final]))
-    }
+
+    const withEdges = createEdgesForFreedraw(stroke)
+    const copyPoints = withEdges.points.map(a => ({ ...a }))
+
+    withEdges.SnapshotPoints = copyPoints
+
+    const copy = fullCopyOfElements(elements)
+    const final = fullCopyOfSingleElement(withEdges)
+    copy.push(final)
+    undoref.current.push({
+        elements: copy,
+        selectedElement: null,
+        multipleSelectedElements: null,
+        multipleSelectedDimentions: null
+    })
+    redoref.current = []
+
+    setElements(copy)
     curruntStroke.current = null
 }
 

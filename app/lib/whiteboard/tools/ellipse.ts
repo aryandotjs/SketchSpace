@@ -1,9 +1,10 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { drawEllipse } from "../drawing";
-import { Element, EllipseElement, Point, StrokeStyle } from "./types";
+import { Element, EllipseElement, historyBlock, Point, StrokeStyle } from "./types";
 import { nanoid } from "nanoid";
 import { Tool } from "../tools";
 import { generalize } from "@/app/geometry/generalize";
+import { fullCopyOfElements } from "@/app/helpers/helper";
 
 export const ellipsePointerDown = (point: Point, strokeColor: string, strokeWidth: number, strokeStyle: StrokeStyle, opacity: number, backgroundColor: string): EllipseElement => {
     return {
@@ -36,14 +37,39 @@ export const ellipsePointerMove = (
     drawEllipse(ctx, Ellipse);
 }
 
-export const ellipsePointerUp = (currentEllipse: React.RefObject<EllpseElement | null>, setElements: Dispatch<SetStateAction<Element[]>>, settool: Dispatch<SetStateAction<Tool>>, setSelectedElement: Dispatch<SetStateAction<Element | null>>) => {
+export const ellipsePointerUp = (
+    currentEllipse: React.RefObject<EllipseElement | null>,
+    setElements: Dispatch<SetStateAction<Element[]>>,
+    settool: Dispatch<SetStateAction<Tool>>,
+    elements: Element[],
+    setSelectedElement: Dispatch<SetStateAction<Element | null>>,
+    undoref: React.RefObject<historyBlock[]>,
+    redoref: React.RefObject<historyBlock[]>
+
+) => {
     if (!currentEllipse) return
     const Ellipse = currentEllipse.current
     if (!Ellipse) return
+    if (Ellipse.height === 0 && Ellipse.width === 0) {
+        currentEllipse.current = null
+        return
+    }
     const genralized = generalize(Ellipse)
+    const copy = fullCopyOfElements(elements)
+    copy.push(genralized)
 
-    setElements((prev) => ([...prev, genralized]))
-    setSelectedElement(currentEllipse.current)
+    undoref.current.push({
+        elements: copy,
+        selectedElement: genralized,
+        multipleSelectedElements: null,
+        multipleSelectedDimentions: null
+    })
+    redoref.current = []
+
+
+    setElements(copy)
+    setSelectedElement(genralized)
+
     currentEllipse.current = null
     settool("Cursor")
 }

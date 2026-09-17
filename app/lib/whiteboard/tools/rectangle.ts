@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import { ispointOnLine } from "./line";
 import { Tool } from "../tools";
 import { generalize } from "@/app/geometry/generalize";
+import { fullCopyOfElements } from "@/app/helpers/helper";
 
 export const rectanglePointerDown = (point: Point, strokeColor: string, strokeWidth: number, strokeStyle: StrokeStyle, opacity: number, backgroundColor: string): RectangleElement => {
     return {
@@ -44,7 +45,8 @@ export const rectanglePointerUp = (
     setElements: Dispatch<SetStateAction<Element[]>>,
     settool: Dispatch<SetStateAction<Tool>>,
     setSelectedElement: Dispatch<SetStateAction<Element | null>>,
-    undoref: React.RefObject<historyBlock[]>
+    undoref: React.RefObject<historyBlock[]>,
+    redoref: React.RefObject<historyBlock[]>
 ) => {
     if (!curruntRectangle) return
     const Rectangle = curruntRectangle.current
@@ -54,14 +56,18 @@ export const rectanglePointerUp = (
         return
     }
     const genralized = generalize(Rectangle)
-
-    const copy = elements.map(a => ({ ...a }))
+    const copy = fullCopyOfElements(elements)
     copy.push(genralized)
 
-    undoref.current.push({ elements: copy, selectedElement: genralized })
-
+    undoref.current.push({
+        elements: copy,
+        selectedElement: genralized,
+        multipleSelectedElements: null,
+        multipleSelectedDimentions: null
+    })
+    redoref.current = []
     setElements(copy)
-    setSelectedElement({ ...Rectangle })
+    setSelectedElement(genralized)
 
     curruntRectangle.current = null
     settool("Cursor")

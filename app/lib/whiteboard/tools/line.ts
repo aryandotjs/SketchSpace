@@ -1,8 +1,10 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { nanoid } from "nanoid";
-import { Element, LineElement, Point, StrokeStyle } from "./types";
+import { Element, historyBlock, LineElement, Point, StrokeStyle } from "./types";
 import { Tool } from "../tools";
 import { drawLine } from "../drawing";
+import { generalize } from "@/app/geometry/generalize";
+import { fullCopyOfElements, fullCopyOfSingleElement } from "@/app/helpers/helper";
 
 
 
@@ -37,12 +39,38 @@ export const linePointerMove = (
     drawLine(ctx, Line);
 }
 
-export const linePointerUp = (curruntLine: React.RefObject<LineElement | null>, setElements: Dispatch<SetStateAction<Element[]>>, settool: Dispatch<SetStateAction<Tool>>, setSelectedElement: Dispatch<SetStateAction<Element | null>>) => {
+export const linePointerUp = (curruntLine: React.RefObject<LineElement | null>,
+    setElements: Dispatch<SetStateAction<Element[]>>,
+    settool: Dispatch<SetStateAction<Tool>>,
+    setSelectedElement: Dispatch<SetStateAction<Element | null>>,
+    elements: Element[],
+    undoref: React.RefObject<historyBlock[]>,
+    redoref: React.RefObject<historyBlock[]>
+) => {
     if (!curruntLine) return
-    const LineElement = curruntLine.current
-    if (!LineElement) return
-    setElements((prev) => ([...prev, LineElement]))
-    setSelectedElement(curruntLine.current)
+    const line = curruntLine.current
+    if (!line) return
+    if (line.height === 0 && line.width === 0) {
+        curruntLine.current = null
+        return
+    }
+    const copyelement = fullCopyOfSingleElement(line)
+
+    const copy = fullCopyOfElements(elements)
+
+    copy.push(copyelement)
+
+    undoref.current.push({
+        elements: copy,
+        selectedElement: copyelement,
+        multipleSelectedElements: null,
+        multipleSelectedDimentions: null
+    })
+    redoref.current = []
+
+    setElements(copy)
+    setSelectedElement(copyelement)
+
     curruntLine.current = null
     settool("Cursor")
 }

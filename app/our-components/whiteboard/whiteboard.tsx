@@ -19,7 +19,7 @@ import { getMultipleSectionsDimentions, getMultipleSectionsDimentionsSecondary }
  
  
 export function Whiteboard() { 
-    const [tool,settool] = useState<Tool>("None")
+    const [tool,settool] = useState<Tool>("Cursor")
 
     const [Elements,setElements] = useState<Element[]>([])
     const [SelectedElement,setSelectedElement] = useState<Element|null>(null)
@@ -51,6 +51,7 @@ export function Whiteboard() {
     const clipboardRef = useRef<Element[] | null>(null)
     const currentPointRef = useRef<Point | null>(null)
     const undoref = useRef<historyBlock[]>([])
+    const redoref = useRef<historyBlock[]>([])
     
     
     const ErasedElementIds = useRef<string[]|null>(null)
@@ -79,7 +80,8 @@ export function Whiteboard() {
                 clipboardRef,
                 currentPointRef,
                 settool,
-                undoref
+                undoref,
+                redoref
             )
         }
         window.addEventListener("keydown",
@@ -113,7 +115,7 @@ export function Whiteboard() {
         window.removeEventListener("keydown",keydownhandler)
         }; 
 
-    }, [Elements,SelectedElement,MultipleSelectedElements,DimentionsMutipleSelectionBox]); 
+    }, [Elements,SelectedElement,MultipleSelectedElements,DimentionsMutipleSelectionBox,tool]); 
 
     const getPoint = (event:React.PointerEvent)=>{
          const canvas = canvasRef.current!
@@ -144,6 +146,7 @@ export function Whiteboard() {
                 setDimentionsMutipleSelectionBox,
                 MoveMultipleSelectObj,
                 ResizeMultipleSelectObj,
+                    undoref
                 
             )
          }
@@ -205,6 +208,7 @@ export function Whiteboard() {
                 MultipleSelectedElements,
                 setMultipleSelectedElements,
                 DimentionsMutipleSelectionBox,
+                setDimentionsMutipleSelectionBox,
                 MoveMultipleSelectObj,
                 ResizeMultipleSelectObj,
                 undoref
@@ -246,17 +250,30 @@ export function Whiteboard() {
     const handlePointerUp = (event: React.PointerEvent)=>{
         if (!canvasRef.current) return;
         
-        if(tool === "Cursor"){ cursorPointerUp(Elements,setElements ,curruntResizeElementObj,curruntMoveElementObj,curruntMultipleSelectObj,
-            canvasRef.current,SelectedElement,setSelectedElement,setMultipleSelectedElements,setDimentionsMutipleSelectionBox,
-            MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj,undoref)}
+        if(tool === "Cursor"){ cursorPointerUp(Elements,setElements ,
+            curruntResizeElementObj,
+            curruntMoveElementObj,
+            curruntMultipleSelectObj,
+            canvasRef.current,
+            SelectedElement,
+            setSelectedElement,
+            setMultipleSelectedElements,
+            setDimentionsMutipleSelectionBox,
+            MultipleSelectedElements,
+            DimentionsMutipleSelectionBox,
+            MoveMultipleSelectObj,
+            ResizeMultipleSelectObj,
+            undoref,
+            redoref
+        )}
 
-        if (tool === "Line") { linePointerUp(curruntLine,setElements,settool, setSelectedElement) }
-        if (tool === "Arrow") { arrowPointerUp(curruntArrow,setElements,settool,setSelectedElement) }
-        if (tool === "Freedraw") { pencilPointerUp(curruntStroke,setElements) }
-        if (tool === "Rectangle") {rectanglePointerUp(curruntRectangle,Elements,setElements,settool,setSelectedElement,undoref)}
-        if (tool === "Diamond") {diamondPointerUp(curruntDiamond,settool,setSelectedElement,setElements)}
-        if (tool === "Ellipse") {ellipsePointerUp(curruntEllipse,setElements,settool,setSelectedElement)}
-        if (tool === "Eraser") { eraserPointerUp(previousPointRef,ErasedElementIds,setElements,Elements)}
+        if (tool === "Line") { linePointerUp(curruntLine,setElements,settool, setSelectedElement,Elements,undoref,redoref) }
+        if (tool === "Arrow") { arrowPointerUp(curruntArrow,setElements,settool,setSelectedElement,Elements,undoref,redoref) }
+        if (tool === "Freedraw") { pencilPointerUp(curruntStroke,setElements,Elements,undoref,redoref) }
+        if (tool === "Rectangle") {rectanglePointerUp(curruntRectangle,Elements,setElements,settool,setSelectedElement,undoref,redoref)}
+        if (tool === "Diamond") {diamondPointerUp(curruntDiamond,settool,setSelectedElement,setElements,Elements,undoref,redoref)}
+        if (tool === "Ellipse") {ellipsePointerUp(curruntEllipse,setElements,settool,Elements,setSelectedElement,undoref,redoref)}
+        if (tool === "Eraser") { eraserPointerUp(previousPointRef,ErasedElementIds,setElements,Elements,undoref)}
         
         canvasRef.current?.releasePointerCapture(event.pointerId)
     }
@@ -266,19 +283,7 @@ export function Whiteboard() {
         <div className="fixed top-0 left-0 bg-gray-950 text-red-600 gap text-xs">
             <div> selected ele id : {SelectedElement?.id} </div> 
             <div> elements length : {Elements.length} </div>
-            {/* <div onClick={
-                ()=>{setElements([])
-                    setSelectedElement(null)
-                    setMultipleSelectedElements(null)
-                    setDimentionsMutipleSelectionBox(null)
-                }} className="rounded-2xl p-3 border-2 bg-yellow-200 h-4 w-10"></div> */}
-            {/* <div> multiple selected length :{MultipleSelectedElements?.length}</div> */}
-            {/* <div> {undoref.current.map(a=>{
-                return <div key={Math.random()} className="border border-yellow-300">
-                    all elements ::  <div>{JSON.stringify(a.elements)}</div>
-                    select elemtn :: <div>{JSON.stringify(a.selectedElement)}</div>
-                </div>
-            })}</div> */}
+            <div> multiple selected length :{MultipleSelectedElements?.length}</div>
             <div>{undoref.current ? undoref.current.length   :   "false"}</div>
         </div>
                 {editingText && tool === "Text" && (
@@ -304,7 +309,16 @@ export function Whiteboard() {
                     }}
                 />
                 )}
-                <ToggleToolbar settool={settool} tool={tool}></ToggleToolbar>
+                <ToggleToolbar 
+                 settool={settool}
+                 tool={tool}
+                 setSelectedElement={setSelectedElement} 
+                 Elements={Elements} 
+                 setElements={setElements} 
+                 undoref={undoref}
+                 setDimentionsMutipleSelectionBox={setDimentionsMutipleSelectionBox}
+                 setMultipleSelectedElements={setMultipleSelectedElements}
+                 ></ToggleToolbar>
                 {/* <MainMenu></MainMenu> */}
                 {/* <StyleCard
                     tool={tool}

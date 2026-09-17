@@ -1,10 +1,11 @@
 import React, { Dispatch, SetStateAction } from "react";
-import { Point, DiamondElement, StrokeStyle, Element } from "./types";
+import { Point, DiamondElement, StrokeStyle, Element, historyBlock } from "./types";
 import { nanoid } from "nanoid";
 import { ispointOnLine } from "./line";
 import { drawdiamond } from "../drawing";
 import { Tool } from "../tools";
 import { generalize } from "@/app/geometry/generalize";
+import { fullCopyOfElements } from "@/app/helpers/helper";
 
 export const diamondPointerDown = (point: Point, strokeColor: string, strokeWidth: number, strokeStyle: StrokeStyle, opacity: number, backgroundColor: string): DiamondElement => {
     return {
@@ -34,16 +35,41 @@ export const diamondPointerMove = (
     if (!diamond) return;
     diamond.height = diamond.y - point.y
     diamond.width = diamond.x - point.x
-
     drawdiamond(ctx, diamond);
 }
 
-export const diamondPointerUp = (curruntdiamond: React.RefObject<DiamondElement | null>, settool: Dispatch<SetStateAction<Tool>>, setSelectedElement: Dispatch<SetStateAction<Element | null>>, setElements: Dispatch<SetStateAction<Element[]>>) => {
+export const diamondPointerUp = (
+    curruntdiamond: React.RefObject<DiamondElement | null>,
+    settool: Dispatch<SetStateAction<Tool>>,
+    setSelectedElement: Dispatch<SetStateAction<Element | null>>,
+    setElements: Dispatch<SetStateAction<Element[]>>,
+    elements: Element[],
+    undoref: React.RefObject<historyBlock[]>,
+    redoref: React.RefObject<historyBlock[]>
+
+) => {
     const diamond = curruntdiamond.current
     if (!diamond) return
+    if (diamond.height === 0 && diamond.width === 0) {
+        curruntdiamond.current = null
+        return
+    }
     const genralized = generalize(diamond)
-    setElements((prev) => ([...prev, genralized]))
-    setSelectedElement(curruntdiamond.current)
+    const copy = fullCopyOfElements(elements)
+    copy.push(genralized)
+
+    undoref.current.push({
+        elements: copy,
+        selectedElement: genralized,
+        multipleSelectedElements: null,
+        multipleSelectedDimentions: null
+    })
+    redoref.current = []
+
+
+    setElements(copy)
+    setSelectedElement(genralized)
+
     curruntdiamond.current = null
     settool("Cursor")
 }

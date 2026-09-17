@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { renderAll } from "../render";
 import { ispointOnLine } from "./line";
-import { Element, Point } from "./types";
+import { Element, historyBlock, Point } from "./types";
 
 
 
@@ -76,7 +76,8 @@ export const eraserPointerUp = (
     previousPointRef: React.RefObject<Point | null>,
     allEraseshapes: React.RefObject<string[] | null>,
     setElements: Dispatch<SetStateAction<Element[]>>,
-    Elements: Element[]
+    Elements: Element[],
+    undoref: React.RefObject<historyBlock[]>
 ) => {
 
     if (!allEraseshapes.current) return

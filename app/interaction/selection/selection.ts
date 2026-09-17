@@ -1,5 +1,6 @@
+import { fullCopyOfElements, fullCopyOfSingleElement } from "@/app/helpers/helper";
 import { renderAll } from "@/app/lib/whiteboard/render";
-import { DimentionsMultipleSelectBox, Element, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, Point, resizeEleObjType } from "@/app/lib/whiteboard/tools/types";
+import { DimentionsMultipleSelectBox, Element, historyBlock, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, Point, resizeEleObjType } from "@/app/lib/whiteboard/tools/types";
 import React, { Dispatch, SetStateAction } from "react";
 
 
@@ -32,18 +33,17 @@ export function handleMultipleSelectionFrameMove(
     ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
 
 ) {
-    const frame = curruntMultipleSelectObj.current
-    if (!frame) return
+    const refObj = curruntMultipleSelectObj.current
+    if (!refObj) return
 
-    frame.right = point.x - frame.left
-    frame.bottom = point.y - frame.top
+    refObj.right = point.x - refObj.left
+    refObj.bottom = point.y - refObj.top
 
 
     selectElementsInsideFrame(Elements, curruntMultipleSelectObj)
 
-    const refObj = curruntMultipleSelectObj.current
     const selectedElements = curruntMultipleSelectObj.current?.MultipleSelectedElements
-    if (refObj && selectedElements && selectedElements.length) {
+    if (refObj && selectedElements) {
         const ctx = canvas?.getContext("2d")
         if (!ctx) return;
         const rect = canvas.getBoundingClientRect()
@@ -51,7 +51,7 @@ export function handleMultipleSelectionFrameMove(
             refObj.dimentionsInnerBox = null
         }
         if (selectedElements.length > 1) {
-            getMultipleSectionsDimentions(curruntMultipleSelectObj, Elements)
+            getMultipleSectionsDimentions(curruntMultipleSelectObj)
         }
         renderAll(ctx, Elements, rect, null, curruntMoveElement, curruntResizeElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
     }
@@ -90,11 +90,8 @@ export function handleMultipleSelectMove(
                     y: p.y - dy
                 }
             })
-
             ele.points = newPoints
             ele.SnapshotPoints = newPoints
-
-            // return
         }
         ele.x = ele.x - dx
         ele.y = ele.y - dy
@@ -119,24 +116,57 @@ export function handleMultipleSelectUp(
     curruntMoveElement: React.RefObject<MoveEleObjType | null>,
     curruntResizeElementObj: React.RefObject<resizeEleObjType | null>,
     ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
+    undoref: React.RefObject<historyBlock[]>
 
 ) {
     const ctx = canvas?.getContext("2d")
-    if (!ctx) return;
+    if (!ctx) return
     const rect = canvas.getBoundingClientRect()
+    const refObj = curruntMultipleSelectObj.current
+    const mulSelElements = refObj?.MultipleSelectedElements
 
-    if (curruntMultipleSelectObj.current?.MultipleSelectedElements?.length === 1) {
-        setSelectedElement(curruntMultipleSelectObj.current?.MultipleSelectedElements[0])
+    if (!refObj || !mulSelElements) {
+        curruntMultipleSelectObj.current = null
+        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElement, curruntResizeElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
+        return
     }
-    if (curruntMultipleSelectObj.current?.MultipleSelectedElements?.length && curruntMultipleSelectObj.current?.MultipleSelectedElements?.length > 1) {
 
-        setMultipleSelectedElements(curruntMultipleSelectObj.current?.MultipleSelectedElements)
-        setDimentionsMutipleSelectionBox(curruntMultipleSelectObj.current?.dimentionsInnerBox)
+    const copy = fullCopyOfElements(Elements)
+
+    if (mulSelElements.length === 1) {
+        const ele = mulSelElements[0]
+        const copySelectElement = fullCopyOfSingleElement(ele)
+        undoref.current.push({
+            elements: copy,
+            selectedElement: copySelectElement,
+            multipleSelectedElements: null,
+            multipleSelectedDimentions: null
+        })
+        setSelectedElement(copySelectElement)
+    }
+
+    if (mulSelElements.length > 1) {
+        const dimentions = refObj.dimentionsInnerBox
+        if (!dimentions) {
+            curruntMultipleSelectObj.current = null
+            renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElement, curruntResizeElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
+            return
+        }
+        const copy = fullCopyOfElements(Elements)
+        const copyMuSelEle = fullCopyOfElements(mulSelElements)
+
+        undoref.current.push({
+            elements: copy,
+            selectedElement: null,
+            multipleSelectedElements: copyMuSelEle,
+            multipleSelectedDimentions: { ...dimentions }
+        })
+        setMultipleSelectedElements(copyMuSelEle)
+        setDimentionsMutipleSelectionBox({ ...dimentions })
     }
 
     curruntMultipleSelectObj.current = null
     renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElement, curruntResizeElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
-
 }
 
 
@@ -195,7 +225,6 @@ function selectElementsInsideFrame(
 
 export function getMultipleSectionsDimentions(
     curruntMultipleSelectObj: React.RefObject<MultipleSelectObjType | null>,
-    Elements: Element[],
 ) {
     if (!curruntMultipleSelectObj.current) return
 
@@ -210,6 +239,7 @@ export function getMultipleSectionsDimentions(
         left: null,
         right: null
     }
+
     SelectedElements.map((ele) => {
         if (!dimentions.top) {
             dimentions.top = ele.y
@@ -245,7 +275,6 @@ export function getMultipleSectionsDimentionsSecondary(
     setDimentionsMutipleSelectionBox: Dispatch<SetStateAction<DimentionsMultipleSelectBox | null>>,
     MultipleSelectedElements: Element[] | null,
 ) {
-    //creadted this for useeeffect thign 
 
     if (!MultipleSelectedElements) return
 
@@ -283,4 +312,5 @@ export function getMultipleSectionsDimentionsSecondary(
         }
     })
     setDimentionsMutipleSelectionBox(dimentions)
+    return dimentions
 } 

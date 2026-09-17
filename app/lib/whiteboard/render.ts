@@ -132,10 +132,6 @@ export const renderAll = (
         }
     }
 
-
-
-
-
     if (MultipleSelectObj?.current) {
         drawMutlipleSelectionFrame(ctx, MultipleSelectObj)
 
