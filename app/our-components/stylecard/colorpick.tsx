@@ -1,3 +1,5 @@
+import { changeStyleOfSelectedElements } from "@/app/lib/whiteboard/tools/stylingActions"
+import { DimentionsMultipleSelectBox, Element, historyBlock } from "@/app/lib/whiteboard/tools/types"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -19,10 +21,25 @@ const colors2: string[] = [
 
 export function ColorPick({
     color,
-    setcolor
+    setcolor,
+    setElements,
+    Elements,
+    selectedElement,
+    undoref,
+    redoref,
+    MultipleSelectedElements,
+    DimentionsMutipleSelectionBox
 }:{
     color:string,
-    setcolor:Dispatch<SetStateAction<string>>
+    setcolor:Dispatch<SetStateAction<string>>,
+    setElements: Dispatch<SetStateAction<Element[]>>,
+    Elements: Element[],
+    selectedElement: Element | null,
+    undoref: React.RefObject<historyBlock[]>,
+    redoref: React.RefObject<historyBlock[]>,
+    MultipleSelectedElements: Element[] | null,
+        DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
+    
 }){
     const hexerrref = useRef<HTMLDivElement|null>(null)
     const [err , seterror] = useState<Record<string,string>>({})
@@ -36,6 +53,17 @@ export function ColorPick({
          return hexRegex.test(hex); 
     }
 
+    function setSelectedElementsColor(color:string){
+        if (color === "transparent") {
+            color = "#00000000"
+        }
+        const hexRegex = /^#?([0-9A-F]{3}){1,2}$/i;
+        if ( hexRegex.test(color)) {
+            changeStyleOfSelectedElements(color,"color",setElements,Elements,selectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
+        }
+        setcolor(color)
+    }
+
      return <div className="gap-2.5 flex flex-col ">
                <Label className="text-[10px] font-normal ">Stroke</Label>
                <div className="flex gap-1.5 items-center">
@@ -43,7 +71,7 @@ export function ColorPick({
                    {colors.map((c)=>{
                      return <div 
                      key={c}
-                     onClick={()=>setcolor(c)}
+                     onClick={()=>setSelectedElementsColor(c)}
                      style={{backgroundColor : c}}
                      className={`h-5.5 w-5.5 rounded  ${color === c ?"ring-1  ring-offset-1" : ""}`}>
                      </div>
@@ -77,7 +105,9 @@ export function ColorPick({
                                     {colors2.map((c)=>{
                                         return <div 
                                         key={c}
-                                        onClick={()=>setcolor(c)}
+                                        onClick={()=>{
+                                            setSelectedElementsColor(c)
+                                        }}
                                         style={{   
                                             background :  c === "transparent" 
                                             ? "linear-gradient(45deg, #efefef 25%, transparent 25%), linear-gradient(-45deg, #efefef 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #efefef 75%), linear-gradient(-45deg, transparent 75%, #efefef 75%)" 
@@ -91,13 +121,16 @@ export function ColorPick({
                             <div className="flex flex-col gap-2">
                                 <Label className="text-[10px] font-normal ">Hex code</Label>
                                 <div ref={hexerrref} className="relative">
-                                   <Input value={color.replace("#","")} onChange={(a)=>{
+                                   <Input value={color.replace("#","")} onKeyDown={(e)=>{
+                                          e.stopPropagation()
+                                   }} 
+                                   onChange={(a)=>{
                                     if (Validatecolor(a.target.value)) {
                                         if (a.target.value[0] && a.target.value[0] === "#") {
                                             const c = a.target.value.replace("#","")
                                         }
                                     }
-                                        setcolor("#" +  a.target.value)
+                                        setSelectedElementsColor("#" +  a.target.value)
                                     }} className={`px-10 text-[10px] focus-visible:ring-0  ${err.hex ? "border-red-500":""}`}></Input>
                                   <div className="absolute top-[6] left-4">#</div> 
                                    {err.hex &&

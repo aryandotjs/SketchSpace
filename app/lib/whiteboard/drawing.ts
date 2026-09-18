@@ -14,9 +14,14 @@ export function drawLine(ctx: CanvasRenderingContext2D, line: LineElement) {
     ctx.lineCap = "round"
 
     ctx.moveTo(x, y)
+
     ctx.lineTo(x - width, y - height)
 
     ctx.stroke()
+    ctx.setLineDash([0, 0]);
+    ctx.globalAlpha = 1
+
+
 }
 
 export function drawArrow(ctx: CanvasRenderingContext2D, arrow: ArrowElement) {
@@ -58,6 +63,10 @@ export function drawArrow(ctx: CanvasRenderingContext2D, arrow: ArrowElement) {
     ctx.lineTo(bx, by)
 
     ctx.stroke()
+    ctx.setLineDash([0, 0]);
+    ctx.globalAlpha = 1
+
+
 }
 
 export function drawFreedraw(ctx: CanvasRenderingContext2D, Freedraw: FreedrawElement) {
@@ -78,15 +87,22 @@ export function drawFreedraw(ctx: CanvasRenderingContext2D, Freedraw: FreedrawEl
         ctx.lineTo(points[i].x, points[i].y)
     }
     ctx.stroke()
+    ctx.setLineDash([0, 0]);
+    ctx.globalAlpha = 1
+
 
 }
-
 
 export function drawRectangle(ctx: CanvasRenderingContext2D, rectangle: RectangleElement) {
 
     let { x, y, height, width, strokeColor, strokeStyle, strokeWidth, opacity } = rectangle
 
     if (!height && !width) return
+    const radius = Math.min(
+        40,
+        Math.abs(width) / 3,
+        Math.abs(height) / 3
+    )
     ctx.beginPath()
 
     ctx.setLineDash(strokeStyle === StrokeStyle.Dotted ? [2, 9] : strokeStyle === StrokeStyle.Dashed ? [8, 10] : [0, 0]);
@@ -96,13 +112,40 @@ export function drawRectangle(ctx: CanvasRenderingContext2D, rectangle: Rectangl
     ctx.lineJoin = "round"
     ctx.lineCap = "round"
 
-    ctx.moveTo(x, y)
-    ctx.lineTo(x - width, y)
-    ctx.lineTo(x - width, y - height)
-    ctx.lineTo(x, y - height)
-    ctx.closePath()
 
+    ctx.moveTo(x + radius, y)
+    ctx.lineTo(x - width - radius, y)
+    ctx.quadraticCurveTo(
+        x - width,
+        y,
+        x - width,
+        y + radius
+    )
+    ctx.lineTo(x - width, y - height - radius)
+    ctx.quadraticCurveTo(
+        x - width,
+        y - height,
+        x - width - radius,
+        y - height
+    )
+    ctx.lineTo(x + radius, y - height)
+    ctx.quadraticCurveTo(
+        x,
+        y - height,
+        x,
+        y - height - radius
+    )
+    ctx.lineTo(x, y + radius)
+    ctx.quadraticCurveTo(
+        x,
+        y,
+        x + radius,
+        y
+    )
     ctx.stroke()
+    ctx.setLineDash([0, 0]);
+    ctx.globalAlpha = 1
+
 }
 export function drawdiamond(ctx: CanvasRenderingContext2D, diamond: DiamondElement) {
 
@@ -125,6 +168,10 @@ export function drawdiamond(ctx: CanvasRenderingContext2D, diamond: DiamondEleme
     ctx.closePath()
 
     ctx.stroke()
+    ctx.setLineDash([0, 0]);
+    ctx.globalAlpha = 1
+
+
 }
 
 export function drawEllipse(ctx: CanvasRenderingContext2D, ellipse: EllipseElement) {
@@ -160,6 +207,10 @@ export function drawEllipse(ctx: CanvasRenderingContext2D, ellipse: EllipseEleme
     );
 
     ctx.stroke()
+    ctx.setLineDash([0, 0]);
+    ctx.globalAlpha = 1
+
+
 }
 
 
@@ -190,8 +241,6 @@ export const drawSelectionForLine = (
     const rotationX = element.x;
     const rotationY = element.y;
     const radius = 4;
-
-
 
     ctx.beginPath();
     ctx.arc(
@@ -270,6 +319,8 @@ export function drawSelectionFrame(
     ctx.lineJoin = "round"
     ctx.lineCap = "round"
 
+
+
     ctx.rect(
         left - offby,
         top - offby,
@@ -278,6 +329,7 @@ export function drawSelectionFrame(
     )
 
     ctx.stroke()
+    ctx.beginPath()
 
     ctx.fillStyle = "#030712"
     ctx.strokeStyle = "#9290E8"
@@ -337,10 +389,12 @@ export function drawSelectionFrame(
         squareSize,
         squareSize
     )
+    ctx.stroke();
 
     const rotationX = left + boxWidth / 2;
     const rotationY = top - 20;
     const radius = 4;
+
     ctx.beginPath();
     ctx.arc(
         rotationX,
@@ -354,6 +408,7 @@ export function drawSelectionFrame(
     ctx.lineWidth = 1.5;
     ctx.stroke();
 }
+
 export function drawSelectionFrameWithoutHandles(
     ctx: CanvasRenderingContext2D,
     element: Element
@@ -550,4 +605,6 @@ export function drawSelectionFrameDashedSecondaryInputs(
 
     ctx.lineWidth = 1.5;
     ctx.stroke();
+    ctx.setLineDash([0, 0]);
+
 }

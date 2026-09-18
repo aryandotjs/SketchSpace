@@ -1,3 +1,5 @@
+import { changeStyleOfSelectedElements } from "@/app/lib/whiteboard/tools/stylingActions"
+import { DimentionsMultipleSelectBox, Element, historyBlock } from "@/app/lib/whiteboard/tools/types"
 import { Label } from "@/components/ui/label"
 import { Minus } from "lucide-react"
 import { Dispatch, SetStateAction } from "react"
@@ -7,10 +9,24 @@ const size:string[] = ["1","2.5","4"]
 
 export function WidthPick({
     strokeWidth,
-    setstrokeWidth
+    setstrokeWidth,
+    Elements,
+    setElements,
+    selectedElement,
+    undoref,
+    redoref,
+    MultipleSelectedElements,
+    DimentionsMutipleSelectionBox
 }:{
     strokeWidth:string,
-    setstrokeWidth:Dispatch<SetStateAction<string>>
+    setstrokeWidth:Dispatch<SetStateAction<string>>,
+    Elements: Element[],
+    setElements: Dispatch<SetStateAction<Element[]>>,
+    selectedElement: Element | null,
+    undoref: React.RefObject<historyBlock[]>,
+    redoref: React.RefObject<historyBlock[]>,
+    MultipleSelectedElements: Element[] | null,
+    DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
 }){
      return <div className="gap-2.5 flex flex-col ">
                <Label className="text-[10px] font-normal ">Stroke Width</Label>
@@ -19,8 +35,10 @@ export function WidthPick({
                    {size.map((c)=>{
                      return <div 
                      key={c}
-                     onClick={()=>setstrokeWidth(c)}
-                     style={{backgroundColor : c}}
+                     onClick={()=>{
+                        setstrokeWidth(c)
+                        changeStyleOfSelectedElements(c,"width",setElements,Elements,selectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
+                    }}
                      className={`h-7 w-7 rounded-sm  ${strokeWidth == c ? "bg-[#F5F5F5]" : ""} flex justify-center items-center`}>
                         <Minus strokeWidth={c === "1" ? 1 : c === "2.5" ? 2 : c === "4" ? 3 : "1" }></Minus>
                      </div>

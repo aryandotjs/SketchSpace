@@ -20,13 +20,12 @@ export enum StrokeStyle {
     Dotted = "dotted",
 }
 
-export type ElementStyle = {
-    strokeColor: string,
-    backgroundColor: string,
-    strokeWidth: number,
-    strokeStyle: StrokeStyle,
-    opacity: number
+export enum fillStyle {
+    Solid = "solid",
+    Hachure = "hachure",
+    CrossHatch = "CrossHatch"
 }
+export type BorderType = "default" | "rounded"
 
 export type BaseElement = {
     id: string;
@@ -42,12 +41,14 @@ export type BaseElement = {
 
     strokeColor: string;
     backgroundColor: string;
+    fillStyle: fillStyle,
     strokeWidth: number;
     strokeStyle: StrokeStyle;
     opacity: number;
 
     locked: boolean;
 };
+
 
 export type FreedrawElement = BaseElement & {
     type: "freedraw",

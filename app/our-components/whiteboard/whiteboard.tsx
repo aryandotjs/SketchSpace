@@ -11,11 +11,11 @@ import {  linePointerDown, linePointerMove, linePointerUp } from "@/app/lib/whit
 import { eraserHandler, eraserPointerUp } from "@/app/lib/whiteboard/tools/eraser";
 import { diamondPointerDown, diamondPointerMove, diamondPointerUp } from "@/app/lib/whiteboard/tools/diamond";
 import { arrowPointerDown, arrowPointerMove, arrowPointerUp } from "@/app/lib/whiteboard/tools/arrow";
-import { ArrowElement, DiamondElement, DimentionsMultipleSelectBox, Element, ElementStyle, EllipseElement, FreedrawElement, historyBlock, LineElement, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, Point, RectangleElement, resizeEleObjType, StrokeStyle } from "@/app/lib/whiteboard/tools/types";
+import { ArrowElement, BorderType, DiamondElement, DimentionsMultipleSelectBox, Element, EllipseElement, FreedrawElement, historyBlock, LineElement, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, Point, RectangleElement, resizeEleObjType, StrokeStyle } from "@/app/lib/whiteboard/tools/types";
 import { onPointdowmText } from "@/app/lib/whiteboard/tools/text";
 import { cursorPointerDown, cursorPointerMove, cursorPointerUp } from "@/app/interaction/cursor";
 import { handleKeydown } from "@/app/actions/handleKeydown";
-import { getMultipleSectionsDimentions, getMultipleSectionsDimentionsSecondary } from "@/app/interaction/selection/selection";
+import { StyleCard } from "../stylecard/stylecard";
  
  
 export function Whiteboard() { 
@@ -32,6 +32,7 @@ export function Whiteboard() {
     const [strokewidth,setstrokewidth] = useState<string>("1.5")
     const [strokeStyle,setStrokeStyle] = useState<StrokeStyle>(StrokeStyle.Solid)
     const [opacity,setopacity] = useState<number>(100)
+    const [border,setborder] = useState<BorderType>("default")
 
     
     const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -320,7 +321,7 @@ export function Whiteboard() {
                  setMultipleSelectedElements={setMultipleSelectedElements}
                  ></ToggleToolbar>
                 {/* <MainMenu></MainMenu> */}
-                {/* <StyleCard
+                <StyleCard
                     tool={tool}
 
                     setStrokecolor={setstrokeColor} 
@@ -338,12 +339,21 @@ export function Whiteboard() {
                     opacity={opacity}
                     setopacity={setopacity}
 
+                    border={border}
+                    setborder={setborder}
+
                     Elements={Elements} 
                     setElements={setElements} 
                     SelectedElement={SelectedElement}
                     setSelectedElement={setSelectedElement}
+                    undoref={undoref}
+                    redoref={redoref}
+                    MultipleSelectedElements={MultipleSelectedElements}
+                    DimentionsMutipleSelectionBox={DimentionsMutipleSelectionBox}
+                    setMultipleSelectedElements={setMultipleSelectedElements}
+                    setDimentionsMutipleSelectionBox={setDimentionsMutipleSelectionBox}
                     >
-                </StyleCard> */}
+                </StyleCard>
                 {/* <LibraryDrawer></LibraryDrawer> */}
                 <canvas 
                     ref={canvasRef}
