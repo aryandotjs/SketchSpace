@@ -1,5 +1,7 @@
 
 
+import { changeStyleOfSelectedElements } from "@/app/lib/whiteboard/tools/stylingActions"
+import { DimentionsMultipleSelectBox, Element, historyBlock } from "@/app/lib/whiteboard/tools/types"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -18,10 +20,27 @@ const colors2: string[] = [
 
 export function BackgroundPick({
     bg,
-    setbg
+    setbg,
+     setElements,
+    Elements,
+    selectedElement,
+    setSelectedElement,
+    undoref,
+    redoref,
+    MultipleSelectedElements,
+    DimentionsMutipleSelectionBox
 }:{
     bg:string,
-    setbg:Dispatch<SetStateAction<string>>
+    setbg:Dispatch<SetStateAction<string>>,
+    setElements: Dispatch<SetStateAction<Element[]>>,
+    Elements: Element[],
+    selectedElement: Element | null,
+    setSelectedElement: Dispatch<SetStateAction<Element | null>>,
+    undoref: React.RefObject<historyBlock[]>,
+    redoref: React.RefObject<historyBlock[]>,
+    MultipleSelectedElements: Element[] | null,
+    DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
+        
 }){
 
     const hexerrref = useRef<HTMLDivElement|null>(null)
@@ -35,6 +54,16 @@ export function BackgroundPick({
          seterror(er)
          return hexRegex.test(hex); 
     }
+     function setSelectedElementsColor(Bg:string){
+            if (Bg === "transparent") {
+                Bg = "#00000000"
+            }
+            const hexRegex = /^#?([0-9A-F]{3}){1,2}$/i;
+            if ( hexRegex.test(Bg)) {
+                changeStyleOfSelectedElements(Bg,"bg",setElements,Elements,selectedElement,setSelectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
+            }
+            setbg(Bg)
+        }
 
      return  <div className="gap-2.5 flex flex-col ">
                <Label className="text-[10px] font-normal ">Background</Label>
@@ -43,7 +72,7 @@ export function BackgroundPick({
                    {background.map((c)=>{
                      return <div 
                      key={c}
-                     onClick={()=>setbg(c)}
+                     onClick={()=>setSelectedElementsColor(c)}
                      style={{backgroundColor : c}}
                      className={`h-5.5 w-5.5 rounded  ${bg === c ?"ring-1  ring-offset-1" : ""}`}>
                      </div>
@@ -76,7 +105,7 @@ export function BackgroundPick({
                                                     {colors2.map((c)=>{
                                                         return <div 
                                                         key={c}
-                                                        onClick={()=>setbg(c)}
+                                                        onClick={()=>setSelectedElementsColor(c)}
                                                         style={{   
                                                             background :  c === "transparent" 
                                                             ? "linear-gradient(45deg, #efefef 25%, transparent 25%), linear-gradient(-45deg, #efefef 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #efefef 75%), linear-gradient(-45deg, transparent 75%, #efefef 75%)" 
@@ -96,7 +125,7 @@ export function BackgroundPick({
                                                             const c = a.target.value.replace("#","")
                                                         }
                                                     }
-                                                        setbg("#" +  a.target.value)
+                                                        setSelectedElementsColor("#" +  a.target.value)
                                                     }} className={`px-10 text-[10px] focus-visible:ring-0  ${err.hex ? "border-red-500":""}`}></Input>
                                                     <div className="absolute top-[6] left-4">#</div> 
                                                     {err.hex &&

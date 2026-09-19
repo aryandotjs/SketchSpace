@@ -6,8 +6,9 @@ import { WidthPick } from "./widthpick";
 import { OpacityPick } from "./opacitypick";
 import { StrokeStylePick } from "./strokestyle";
 import { ActionPick } from "./actions";
-import { BorderType, DimentionsMultipleSelectBox, Element, historyBlock, StrokeStyle } from "@/app/lib/whiteboard/tools/types";
+import { BorderType, DimentionsMultipleSelectBox, Element, fillStyleEnum, historyBlock, StrokeStyle } from "@/app/lib/whiteboard/tools/types";
 import { BorderPick } from "./borderpick";
+import { Fillpick } from "./fillpick";
 
 
 
@@ -23,6 +24,9 @@ export function StyleCard(
 
       backgroundcolor,
       setbackgroundcolor,
+
+      fillType,
+      setfillType,
 
       setstrokeWidth,
       strokeWidth,
@@ -56,6 +60,9 @@ export function StyleCard(
       backgroundcolor:string,
       setbackgroundcolor:Dispatch<SetStateAction<string>>
 
+      fillType:fillStyleEnum,
+      setfillType:Dispatch<SetStateAction<fillStyleEnum>>
+
       strokeWidth:string,
       setstrokeWidth:Dispatch<SetStateAction<string>>
 
@@ -75,26 +82,24 @@ export function StyleCard(
       DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
       setMultipleSelectedElements: Dispatch<SetStateAction<Element[] | null>>,
       setDimentionsMutipleSelectionBox: Dispatch<SetStateAction<DimentionsMultipleSelectBox | null>>,
-    
 
    }){
       
      return <div className=" w-50 absolute left-4 top-20 ">
           <Card  className="w-full max-w-sm px-2.5">
 
-            <ColorPick  color={strokeColor} setcolor={setStrokecolor} setElements={setElements} Elements={Elements} selectedElement={SelectedElement} undoref={undoref} redoref={redoref} MultipleSelectedElements={MultipleSelectedElements} DimentionsMutipleSelectionBox={DimentionsMutipleSelectionBox} ></ColorPick> 
-            {/* <BackgroundPick setbg={setbackgroundcolor} bg={backgroundcolor}></BackgroundPick> */}
+            <ColorPick  color={strokeColor} setcolor={setStrokecolor} setElements={setElements} Elements={Elements} selectedElement={SelectedElement} setSelectedElement={setSelectedElement} undoref={undoref} redoref={redoref} MultipleSelectedElements={MultipleSelectedElements} DimentionsMutipleSelectionBox={DimentionsMutipleSelectionBox} ></ColorPick> 
+            <BackgroundPick setbg={setbackgroundcolor} bg={backgroundcolor} setElements={setElements} Elements={Elements} selectedElement={SelectedElement} setSelectedElement={setSelectedElement} undoref={undoref} redoref={redoref} MultipleSelectedElements={MultipleSelectedElements} DimentionsMutipleSelectionBox={DimentionsMutipleSelectionBox}></BackgroundPick>
 
-            {/* <Fillpick setstrokeWidth={setstrokeWidth} strokeWidth={strokeWidth}></Fillpick>  */}
+            <Fillpick fillType={fillType} setfillType={setfillType} setElements={setElements} Elements={Elements} selectedElement={SelectedElement} setSelectedElement={setSelectedElement} undoref={undoref} redoref={redoref} MultipleSelectedElements={MultipleSelectedElements} DimentionsMutipleSelectionBox={DimentionsMutipleSelectionBox}></Fillpick> 
 
-            <WidthPick setstrokeWidth={setstrokeWidth} strokeWidth={strokeWidth}  setElements={setElements} Elements={Elements} selectedElement={SelectedElement} undoref={undoref} redoref={redoref} MultipleSelectedElements={MultipleSelectedElements} DimentionsMutipleSelectionBox={DimentionsMutipleSelectionBox}></WidthPick>
-            <StrokeStylePick  setstrokeStyle={setstrokeStyle} strokeStyle={strokeStyle} setElements={setElements} Elements={Elements} selectedElement={SelectedElement} undoref={undoref} redoref={redoref} MultipleSelectedElements={MultipleSelectedElements} DimentionsMutipleSelectionBox={DimentionsMutipleSelectionBox}></StrokeStylePick>
+            <WidthPick setstrokeWidth={setstrokeWidth} strokeWidth={strokeWidth}  setElements={setElements} Elements={Elements} selectedElement={SelectedElement} setSelectedElement={setSelectedElement} undoref={undoref} redoref={redoref} MultipleSelectedElements={MultipleSelectedElements} DimentionsMutipleSelectionBox={DimentionsMutipleSelectionBox}></WidthPick>
+            <StrokeStylePick  setstrokeStyle={setstrokeStyle} strokeStyle={strokeStyle} setElements={setElements}  Elements={Elements} selectedElement={SelectedElement} setSelectedElement={setSelectedElement} undoref={undoref} redoref={redoref} MultipleSelectedElements={MultipleSelectedElements} DimentionsMutipleSelectionBox={DimentionsMutipleSelectionBox}></StrokeStylePick>
 
-            <BorderPick border={border} setborder={setborder}></BorderPick>
+            <BorderPick border={border} setborder={setborder} setElements={setElements}  Elements={Elements} selectedElement={SelectedElement} setSelectedElement={setSelectedElement} undoref={undoref} redoref={redoref} MultipleSelectedElements={MultipleSelectedElements} DimentionsMutipleSelectionBox={DimentionsMutipleSelectionBox}></BorderPick>
                
-            <OpacityPick   opacity={opacity}  setopacity={setopacity}  setElements={setElements} Elements={Elements} selectedElement={SelectedElement} undoref={undoref} redoref={redoref} MultipleSelectedElements={MultipleSelectedElements} DimentionsMutipleSelectionBox={DimentionsMutipleSelectionBox}></OpacityPick>
+            <OpacityPick   opacity={opacity}  setopacity={setopacity}  setElements={setElements} Elements={Elements} selectedElement={SelectedElement} setSelectedElement={setSelectedElement} undoref={undoref} redoref={redoref} MultipleSelectedElements={MultipleSelectedElements} DimentionsMutipleSelectionBox={DimentionsMutipleSelectionBox}></OpacityPick>
             
-            {/* { tool !== "Pencil" && tool !== "Ellipse" ?  */}
             <ActionPick 
                strokeWidth={strokeWidth}
                setstrokeWidth={setstrokeWidth}
@@ -110,8 +115,6 @@ export function StyleCard(
                 redoref={redoref}
                ></ActionPick> 
 
-
-            {/* // : " "} */}
                
           </Card>
      </div>

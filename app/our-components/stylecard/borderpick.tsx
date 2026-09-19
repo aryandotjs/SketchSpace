@@ -11,6 +11,7 @@ export function BorderPick({
      setElements,
     Elements,
     selectedElement,
+    setSelectedElement,
     undoref,
     redoref,
     MultipleSelectedElements,
@@ -21,6 +22,7 @@ export function BorderPick({
     setElements: Dispatch<SetStateAction<Element[]>>,
     Elements: Element[],
     selectedElement: Element | null,
+    setSelectedElement: Dispatch<SetStateAction<Element | null>>,
     undoref: React.RefObject<historyBlock[]>,
     redoref: React.RefObject<historyBlock[]>,
     MultipleSelectedElements: Element[] | null,
@@ -35,17 +37,15 @@ export function BorderPick({
                      key={c}
                      onClick={()=>{
                       if(c === "default"){
-                        setborder("default")
-                        changeStyleOfSelectedElements(border,"border",setElements,Elements,selectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
+                          setborder("default")
+                          changeStyleOfSelectedElements("default","border",setElements,Elements,selectedElement,setSelectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
                       }
                       if(c === "rounded"){
-                        setborder("rounded")
-                        changeStyleOfSelectedElements(border,"border",setElements,Elements,selectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
-
+                          setborder("rounded")
+                          changeStyleOfSelectedElements("rounded","border",setElements,Elements,selectedElement,setSelectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
                       }
                     }}
-                     style={{backgroundColor : c}}
-                     className={`h-7 w-7 rounded-sm  ${border == c ? "bg-[#614c4c42]" : ""} flex justify-center items-center`}>
+                     className={`h-7 w-7 rounded-sm  ${border == c ? "bg-gray-400" : ""} flex justify-center items-center`}>
                             {c === "default" ? <Square strokeWidth={1.5} size={14}></Square> : "" } 
                             {c === "rounded" ?  <SquareRoundCorner strokeWidth={1.5} size={14}></SquareRoundCorner> : ""}
                      </div>

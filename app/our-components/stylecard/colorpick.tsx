@@ -25,6 +25,7 @@ export function ColorPick({
     setElements,
     Elements,
     selectedElement,
+    setSelectedElement,
     undoref,
     redoref,
     MultipleSelectedElements,
@@ -35,10 +36,11 @@ export function ColorPick({
     setElements: Dispatch<SetStateAction<Element[]>>,
     Elements: Element[],
     selectedElement: Element | null,
+    setSelectedElement: Dispatch<SetStateAction<Element | null>>,
     undoref: React.RefObject<historyBlock[]>,
     redoref: React.RefObject<historyBlock[]>,
     MultipleSelectedElements: Element[] | null,
-        DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
+    DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
     
 }){
     const hexerrref = useRef<HTMLDivElement|null>(null)
@@ -59,7 +61,7 @@ export function ColorPick({
         }
         const hexRegex = /^#?([0-9A-F]{3}){1,2}$/i;
         if ( hexRegex.test(color)) {
-            changeStyleOfSelectedElements(color,"color",setElements,Elements,selectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
+            changeStyleOfSelectedElements(color,"color",setElements,Elements,selectedElement,setSelectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
         }
         setcolor(color)
     }

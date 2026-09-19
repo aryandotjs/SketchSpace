@@ -1,13 +1,13 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { drawRectangle } from "../drawing";
-import { Element, historyBlock, Point, RectangleElement, StrokeStyle } from "./types";
+import { BorderType, Element, fillStyleEnum, historyBlock, Point, RectangleElement, Sloppyness, StrokeStyle } from "./types";
 import { nanoid } from "nanoid";
 import { ispointOnLine } from "./line";
 import { Tool } from "../tools";
 import { generalize } from "@/app/geometry/generalize";
 import { fullCopyOfElements } from "@/app/helpers/helper";
 
-export const rectanglePointerDown = (point: Point, strokeColor: string, strokeWidth: number, strokeStyle: StrokeStyle, opacity: number, backgroundColor: string): RectangleElement => {
+export const rectanglePointerDown = (point: Point, strokeColor: string, strokeWidth: number, strokeStyle: StrokeStyle, opacity: number, backgroundColor: string, border: BorderType): RectangleElement => {
     return {
         id: nanoid(),
         type: "rectangle",
@@ -19,7 +19,10 @@ export const rectanglePointerDown = (point: Point, strokeColor: string, strokeWi
         strokeWidth,
         strokeStyle,
         backgroundColor,
+        fillStyle: fillStyleEnum.Solid,
         opacity,
+        sloppyness: Sloppyness.normal,
+        border,
         locked: false,
         angle: 0,
     }

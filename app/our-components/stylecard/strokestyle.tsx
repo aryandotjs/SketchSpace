@@ -11,6 +11,7 @@ export function StrokeStylePick({
     Elements,
     setElements,
     selectedElement,
+    setSelectedElement,
     undoref,
     redoref,
     MultipleSelectedElements,
@@ -21,6 +22,7 @@ export function StrokeStylePick({
     Elements: Element[],
     setElements: Dispatch<SetStateAction<Element[]>>,
     selectedElement: Element | null,
+    setSelectedElement: Dispatch<SetStateAction<Element | null>>,
     undoref: React.RefObject<historyBlock[]>,
     redoref: React.RefObject<historyBlock[]>,
     MultipleSelectedElements: Element[] | null,
@@ -33,16 +35,16 @@ export function StrokeStylePick({
                     <div 
                      onClick={()=>{
                         setstrokeStyle(StrokeStyle.Solid)
-                        changeStyleOfSelectedElements(StrokeStyle.Solid,"style",setElements,Elements,selectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
+                        changeStyleOfSelectedElements(StrokeStyle.Solid,"style",setElements,Elements,selectedElement,setSelectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
                     }}
-                     className={`h-7 w-7 rounded-sm  ${strokeStyle === StrokeStyle.Solid ? "bg-[#F5F5F5]" : ""} flex justify-center items-center`}>
+                     className={`h-7 w-7 rounded-sm  ${strokeStyle === StrokeStyle.Solid ? "bg-gray-400" : ""} flex justify-center items-center`}>
                         <div className="border-t-2 w-4 border-solid border-black"></div>
                     </div>
 
                     <div 
                      onClick={()=>{
                         setstrokeStyle(StrokeStyle.Dashed)
-                        changeStyleOfSelectedElements(StrokeStyle.Dashed,"style",setElements,Elements,selectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
+                        changeStyleOfSelectedElements(StrokeStyle.Dashed,"style",setElements,Elements,selectedElement,setSelectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
                     }}
                      className={`h-7 w-7 rounded-sm  ${strokeStyle === StrokeStyle.Dashed ? "bg-[#F5F5F5]" : ""} flex justify-center items-center`}>
                         <div className="border-t-2 w-4 border-dashed border-black"></div>
@@ -51,7 +53,7 @@ export function StrokeStylePick({
                     <div 
                      onClick={()=>{
                         setstrokeStyle(StrokeStyle.Dotted)
-                        changeStyleOfSelectedElements(StrokeStyle.Dotted,"style",setElements,Elements,selectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
+                        changeStyleOfSelectedElements(StrokeStyle.Dotted,"style",setElements,Elements,selectedElement,setSelectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
                     }}
                      className={`h-7 w-7 rounded-sm  ${strokeStyle === StrokeStyle.Dotted ? "bg-[#F5F5F5]" : ""} flex justify-center items-center`}>
                         <div className="border-t-2 w-4 border-dotted border-black"></div>

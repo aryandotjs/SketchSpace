@@ -1,4 +1,4 @@
-import { ArrowElement, DiamondElement, Element, EllipseElement, FreedrawElement, LineElement, MultipleSelectObjType, RectangleElement, StrokeStyle, TextElement } from "./tools/types";
+import { ArrowElement, DiamondElement, Element, EllipseElement, fillStyleEnum, FreedrawElement, LineElement, MultipleSelectObjType, RectangleElement, StrokeStyle, TextElement } from "./tools/types";
 
 
 export function drawLine(ctx: CanvasRenderingContext2D, line: LineElement) {
@@ -95,7 +95,7 @@ export function drawFreedraw(ctx: CanvasRenderingContext2D, Freedraw: FreedrawEl
 
 export function drawRectangle(ctx: CanvasRenderingContext2D, rectangle: RectangleElement) {
 
-    let { x, y, height, width, strokeColor, strokeStyle, strokeWidth, opacity } = rectangle
+    let { x, y, height, width, strokeColor, strokeStyle, strokeWidth, opacity, border, backgroundColor, fillStyle } = rectangle
 
     if (!height && !width) return
     const radius = Math.min(
@@ -109,42 +109,63 @@ export function drawRectangle(ctx: CanvasRenderingContext2D, rectangle: Rectangl
     ctx.globalAlpha = Number((opacity * 0.01).toFixed(1))
     ctx.strokeStyle = strokeColor
     ctx.lineWidth = strokeWidth
+    ctx.fillStyle = backgroundColor
     ctx.lineJoin = "round"
     ctx.lineCap = "round"
 
+    if (border === "default") {
+        ctx.moveTo(x, y)
+        ctx.lineTo(x - width, y)
+        ctx.lineTo(x - width, y - height)
+        ctx.lineTo(x, y - height)
+        ctx.lineTo(x, y)
 
-    ctx.moveTo(x + radius, y)
-    ctx.lineTo(x - width - radius, y)
-    ctx.quadraticCurveTo(
-        x - width,
-        y,
-        x - width,
-        y + radius
-    )
-    ctx.lineTo(x - width, y - height - radius)
-    ctx.quadraticCurveTo(
-        x - width,
-        y - height,
-        x - width - radius,
-        y - height
-    )
-    ctx.lineTo(x + radius, y - height)
-    ctx.quadraticCurveTo(
-        x,
-        y - height,
-        x,
-        y - height - radius
-    )
-    ctx.lineTo(x, y + radius)
-    ctx.quadraticCurveTo(
-        x,
-        y,
-        x + radius,
-        y
-    )
-    ctx.stroke()
-    ctx.setLineDash([0, 0]);
-    ctx.globalAlpha = 1
+        if (fillStyle === fillStyleEnum.Hachure) {
+        }
+        if (fillStyle === fillStyleEnum.Solid) {
+            ctx.fill()
+        }
+
+        ctx.stroke()
+        ctx.setLineDash([0, 0]);
+        ctx.globalAlpha = 1
+    }
+    if (border === "rounded") {
+        ctx.moveTo(x + radius, y)
+        ctx.lineTo(x - width - radius, y)
+        ctx.quadraticCurveTo(
+            x - width,
+            y,
+            x - width,
+            y + radius
+        )
+        ctx.lineTo(x - width, y - height - radius)
+        ctx.quadraticCurveTo(
+            x - width,
+            y - height,
+            x - width - radius,
+            y - height
+        )
+        ctx.lineTo(x + radius, y - height)
+        ctx.quadraticCurveTo(
+            x,
+            y - height,
+            x,
+            y - height - radius
+        )
+        ctx.lineTo(x, y + radius)
+        ctx.quadraticCurveTo(
+            x,
+            y,
+            x + radius,
+            y
+        )
+        ctx.fill()
+        ctx.stroke()
+        ctx.setLineDash([0, 0]);
+        ctx.globalAlpha = 1
+    }
+
 
 }
 export function drawdiamond(ctx: CanvasRenderingContext2D, diamond: DiamondElement) {

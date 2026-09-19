@@ -20,10 +20,15 @@ export enum StrokeStyle {
     Dotted = "dotted",
 }
 
-export enum fillStyle {
+export enum fillStyleEnum {
     Solid = "solid",
     Hachure = "hachure",
     CrossHatch = "CrossHatch"
+}
+export enum Sloppyness {
+    normal = "normal",
+    medium = "medium",
+    maximum = "maximum"
 }
 export type BorderType = "default" | "rounded"
 
@@ -40,8 +45,7 @@ export type BaseElement = {
     angle: number;
 
     strokeColor: string;
-    backgroundColor: string;
-    fillStyle: fillStyle,
+
     strokeWidth: number;
     strokeStyle: StrokeStyle;
     opacity: number;
@@ -57,23 +61,36 @@ export type FreedrawElement = BaseElement & {
 }
 
 export type RectangleElement = BaseElement & {
-    type: "rectangle"
+    type: "rectangle",
+    border: BorderType,
+    sloppyness: Sloppyness,
+    backgroundColor: string;
+    fillStyle: fillStyleEnum
+
 }
 
 export type EllipseElement = BaseElement & {
-    type: "ellipse"
+    type: "ellipse",
+    sloppyness: Sloppyness,
+    backgroundColor: string;
+    fillStyle: fillStyleEnum
+
 }
 
 export type DiamondElement = BaseElement & {
-    type: "diamond"
+    type: "diamond",
+    sloppyness: Sloppyness,
+    backgroundColor: string;
+    fillStyle: fillStyleEnum
 }
 
 export type LineElement = BaseElement & {
     type: "line",
-
+    sloppyness: Sloppyness
 }
 export type ArrowElement = BaseElement & {
     type: "arrow",
+    sloppyness: Sloppyness
 }
 
 export type TextElement = BaseElement & {

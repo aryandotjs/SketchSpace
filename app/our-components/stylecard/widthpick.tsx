@@ -13,6 +13,7 @@ export function WidthPick({
     Elements,
     setElements,
     selectedElement,
+    setSelectedElement,
     undoref,
     redoref,
     MultipleSelectedElements,
@@ -23,6 +24,7 @@ export function WidthPick({
     Elements: Element[],
     setElements: Dispatch<SetStateAction<Element[]>>,
     selectedElement: Element | null,
+    setSelectedElement: Dispatch<SetStateAction<Element | null>>,
     undoref: React.RefObject<historyBlock[]>,
     redoref: React.RefObject<historyBlock[]>,
     MultipleSelectedElements: Element[] | null,
@@ -37,9 +39,9 @@ export function WidthPick({
                      key={c}
                      onClick={()=>{
                         setstrokeWidth(c)
-                        changeStyleOfSelectedElements(c,"width",setElements,Elements,selectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
+                        changeStyleOfSelectedElements(c,"width",setElements,Elements,selectedElement,setSelectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
                     }}
-                     className={`h-7 w-7 rounded-sm  ${strokeWidth == c ? "bg-[#F5F5F5]" : ""} flex justify-center items-center`}>
+                     className={`h-7 w-7 rounded-sm  ${strokeWidth == c ? "bg-gray-400" : ""} flex justify-center items-center`}>
                         <Minus strokeWidth={c === "1" ? 1 : c === "2.5" ? 2 : c === "4" ? 3 : "1" }></Minus>
                      </div>
                    })}

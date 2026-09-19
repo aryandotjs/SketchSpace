@@ -13,6 +13,7 @@ export function OpacityPick({
      Elements,
     setElements,
     selectedElement,
+    setSelectedElement,
     undoref,
     redoref,
     MultipleSelectedElements,
@@ -23,6 +24,7 @@ export function OpacityPick({
      Elements: Element[],
     setElements: Dispatch<SetStateAction<Element[]>>,
     selectedElement: Element | null,
+    setSelectedElement: Dispatch<SetStateAction<Element | null>>,
     undoref: React.RefObject<historyBlock[]>,
     redoref: React.RefObject<historyBlock[]>,
     MultipleSelectedElements: Element[] | null,
@@ -34,7 +36,7 @@ export function OpacityPick({
                    <Slider value={opacity} onValueChange={(a)=>{
                     setopacity(Number(a))
                     if (a === 0 || a === 10 || a === 20 ||a === 30 ||a === 40 ||a === 50 ||a === 60 ||a === 70 ||a === 80 ||a === 90 ||a === 100 ) {
-                        changeStyleOfSelectedElements(opacity.toString(),"opacity",setElements,Elements,selectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
+                        changeStyleOfSelectedElements(opacity.toString(),"opacity",setElements,Elements,selectedElement,setSelectedElement,undoref,redoref,MultipleSelectedElements,DimentionsMutipleSelectionBox)
                     }
                     }}></Slider>
                    <div className="flex justify-between text-[11px] ">

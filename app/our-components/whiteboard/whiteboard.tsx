@@ -11,7 +11,7 @@ import {  linePointerDown, linePointerMove, linePointerUp } from "@/app/lib/whit
 import { eraserHandler, eraserPointerUp } from "@/app/lib/whiteboard/tools/eraser";
 import { diamondPointerDown, diamondPointerMove, diamondPointerUp } from "@/app/lib/whiteboard/tools/diamond";
 import { arrowPointerDown, arrowPointerMove, arrowPointerUp } from "@/app/lib/whiteboard/tools/arrow";
-import { ArrowElement, BorderType, DiamondElement, DimentionsMultipleSelectBox, Element, EllipseElement, FreedrawElement, historyBlock, LineElement, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, Point, RectangleElement, resizeEleObjType, StrokeStyle } from "@/app/lib/whiteboard/tools/types";
+import { ArrowElement, BorderType, DiamondElement, DimentionsMultipleSelectBox, Element, EllipseElement, fillStyleEnum, FreedrawElement, historyBlock, LineElement, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, Point, RectangleElement, resizeEleObjType, StrokeStyle } from "@/app/lib/whiteboard/tools/types";
 import { onPointdowmText } from "@/app/lib/whiteboard/tools/text";
 import { cursorPointerDown, cursorPointerMove, cursorPointerUp } from "@/app/interaction/cursor";
 import { handleKeydown } from "@/app/actions/handleKeydown";
@@ -28,13 +28,13 @@ export function Whiteboard() {
     const [DimentionsMutipleSelectionBox, setDimentionsMutipleSelectionBox] = useState<DimentionsMultipleSelectBox|null>(null)
     
     const [strokeColor,setstrokeColor] = useState<string>("#fff")
-    const [backgroundColor,setbackgroundColor] = useState<string>("#ffc9c9")
-    const [strokewidth,setstrokewidth] = useState<string>("1.5")
+    const [backgroundColor,setbackgroundColor] = useState<string>("#ffc9c900")
+    const [fillType,setfillType] = useState<fillStyleEnum>(fillStyleEnum.Solid)
+    const [strokewidth,setstrokewidth] = useState<string>("3.5")
     const [strokeStyle,setStrokeStyle] = useState<StrokeStyle>(StrokeStyle.Solid)
+    const [border,setborder] = useState<BorderType>("rounded")
     const [opacity,setopacity] = useState<number>(100)
-    const [border,setborder] = useState<BorderType>("default")
 
-    
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const previousPointRef = useRef<Point|null>(null)
     const curruntStroke = useRef<FreedrawElement|null>(null)
@@ -148,14 +148,13 @@ export function Whiteboard() {
                 MoveMultipleSelectObj,
                 ResizeMultipleSelectObj,
                     undoref
-                
             )
          }
 
         if (tool === "Line") {curruntLine.current = linePointerDown(point,strokeColor,Number(strokewidth),strokeStyle,opacity,backgroundColor) }
         if (tool === "Arrow") {curruntArrow.current = arrowPointerDown(point,strokeColor,Number(strokewidth),strokeStyle,opacity,backgroundColor) }
         if (tool === "Freedraw") {curruntStroke.current = pencilPointerDown(point,strokeColor,Number(strokewidth),strokeStyle,opacity,backgroundColor)}
-        if (tool === "Rectangle") {curruntRectangle.current = rectanglePointerDown(point,strokeColor,Number(strokewidth),strokeStyle,opacity,backgroundColor)} 
+        if (tool === "Rectangle") {curruntRectangle.current = rectanglePointerDown(point,strokeColor,Number(strokewidth),strokeStyle,opacity,backgroundColor,border)} 
         if (tool === "Diamond") {curruntDiamond.current = diamondPointerDown(point,strokeColor,Number(strokewidth),strokeStyle,opacity,backgroundColor)} 
         if (tool === "Ellipse") { curruntEllipse.current = ellipsePointerDown(point,strokeColor,Number(strokewidth),strokeStyle,opacity,backgroundColor) }
         if (tool === "Eraser") { 
@@ -321,7 +320,7 @@ export function Whiteboard() {
                  setMultipleSelectedElements={setMultipleSelectedElements}
                  ></ToggleToolbar>
                 {/* <MainMenu></MainMenu> */}
-                <StyleCard
+                {/* <StyleCard
                     tool={tool}
 
                     setStrokecolor={setstrokeColor} 
@@ -329,6 +328,9 @@ export function Whiteboard() {
 
                     setbackgroundcolor={setbackgroundColor}
                     backgroundcolor={backgroundColor}
+
+                    fillType={fillType}
+                    setfillType={setfillType}
 
                     setstrokeStyle={setStrokeStyle}
                     strokeStyle={strokeStyle}
@@ -342,6 +344,7 @@ export function Whiteboard() {
                     border={border}
                     setborder={setborder}
 
+
                     Elements={Elements} 
                     setElements={setElements} 
                     SelectedElement={SelectedElement}
@@ -353,7 +356,7 @@ export function Whiteboard() {
                     setMultipleSelectedElements={setMultipleSelectedElements}
                     setDimentionsMutipleSelectionBox={setDimentionsMutipleSelectionBox}
                     >
-                </StyleCard>
+                </StyleCard> */}
                 {/* <LibraryDrawer></LibraryDrawer> */}
                 <canvas 
                     ref={canvasRef}
