@@ -1,5 +1,6 @@
+import React from "react"
 import { drawArrow, drawdiamond, drawEllipse, drawFreedraw, drawLine, drawMutlipleSelectionFrame, drawRectangle, drawSelectionForLine, drawSelectionFrame, drawSelectionFrameDashedSecondaryInputs, drawSelectionFrameWithoutHandles, drawText } from "./drawing"
-import { DimentionsMultipleSelectBox, Element, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, resizeEleObjType } from "./tools/types"
+import { DimentionsMultipleSelectBox, Element, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, panObj, resizeEleObjType } from "./tools/types"
 
 
 export const renderAll = (
@@ -14,11 +15,11 @@ export const renderAll = (
     DimentionsMutipleSelectionBox: DimentionsMultipleSelectBox | null,
     MoveMultipleSelectObj: React.RefObject<MoveMultipleEleObjType | null>,
     ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
-
-
+    panRef: React.RefObject<panObj>
 ) => {
+    ctx.setTransform(1, 0, 0, 1, 0, 0)
     ctx.clearRect(0, 0, rect.width, rect.height)
-
+    ctx.translate(panRef.current.offSetX, 0)
     Elements.forEach((el) => {
         if (el.type === "line") {
             drawLine(ctx, el)
@@ -30,7 +31,7 @@ export const renderAll = (
             drawFreedraw(ctx, el)
         }
         if (el.type === "rectangle") {
-            drawRectangle(ctx, el)
+            drawRectangle(ctx, el, 0)
         }
         if (el.type === "diamond") {
             drawdiamond(ctx, el)
@@ -82,7 +83,7 @@ export const renderAll = (
             drawFreedraw(ctx, moveElement)
         }
         if (moveElement.type === "rectangle") {
-            drawRectangle(ctx, moveElement)
+            drawRectangle(ctx, moveElement, 0)
         }
         if (moveElement.type === "diamond") {
             drawdiamond(ctx, moveElement)
@@ -119,7 +120,7 @@ export const renderAll = (
             drawFreedraw(ctx, moveElement)
         }
         if (moveElement.type === "rectangle") {
-            drawRectangle(ctx, moveElement)
+            drawRectangle(ctx, moveElement, 0)
         }
         if (moveElement.type === "diamond") {
             drawdiamond(ctx, moveElement)
@@ -181,7 +182,7 @@ export const renderAll = (
                     drawFreedraw(ctx, el)
                 }
                 if (el.type === "rectangle") {
-                    drawRectangle(ctx, el)
+                    drawRectangle(ctx, el, 0)
                 }
                 if (el.type === "diamond") {
                     drawdiamond(ctx, el)
@@ -250,7 +251,7 @@ function handleMutltipleMoveBox(
                 drawFreedraw(ctx, el)
             }
             if (el.type === "rectangle") {
-                drawRectangle(ctx, el)
+                drawRectangle(ctx, el, 0)
             }
             if (el.type === "diamond") {
                 drawdiamond(ctx, el)
@@ -264,4 +265,37 @@ function handleMutltipleMoveBox(
 
         })
     }
-} 
+}
+
+
+
+
+export const renderForPan = (Elements: Element[], rect: DOMRect, ctx: CanvasRenderingContext2D, panRef: React.RefObject<panObj>,) => {
+    // ctx.setTransform(1, 0, 0, 1, 0, 0)
+    ctx.clearRect(0, 0, rect.width, rect.height)
+    // ctx.translate(panRef.current.offSetX, 0)
+    Elements.forEach((el) => {
+        // if (el.type === "line") {
+        //     drawLine(ctx, el)
+        // }
+        // if (el.type === "arrow") {
+        //     drawArrow(ctx, el)
+        // }
+        // if (el.type === "freedraw") {
+        //     drawFreedraw(ctx, el)
+        // }
+        if (el.type === "rectangle") {
+            // el.x = el.x + panRef.current.offSetX
+            drawRectangle(ctx, el, panRef.current.offSetX)
+        }
+        // if (el.type === "diamond") {
+        //     drawdiamond(ctx, el)
+        // }
+        // if (el.type === "ellipse") {
+        //     drawEllipse(ctx, el)
+        // }
+        // if (el.type === "text") {
+        //     drawText(ctx, el)
+        // }
+    })
+}

@@ -1,5 +1,5 @@
 import { hitTest } from "@/app/geometry/hitTest"
-import { DimentionsMultipleSelectBox, Element, historyBlock, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, Point, resizeEleObjType } from "../lib/whiteboard/tools/types"
+import { DimentionsMultipleSelectBox, Element, historyBlock, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, panObj, Point, resizeEleObjType } from "../lib/whiteboard/tools/types"
 import React, { Dispatch, SetStateAction } from "react"
 import { renderAll } from "../lib/whiteboard/render"
 import { findResizeSideAndAddResizeRef, HandleResizeMultipleElementDown, HandleResizeMultipleElementsMove, resizeElement } from "@/app/geometry/resize"
@@ -162,7 +162,8 @@ export const cursorPointerMove = (
     setDimentionsMutipleSelectionBox: Dispatch<SetStateAction<DimentionsMultipleSelectBox | null>>,
     MoveMultipleSelectObj: React.RefObject<MoveMultipleEleObjType | null>,
     ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
-    undoref: React.RefObject<historyBlock[]>
+    undoref: React.RefObject<historyBlock[]>,
+    panref: React.RefObject<panObj>
 
 ) => {
     const ctx = canvas?.getContext("2d")
@@ -170,12 +171,16 @@ export const cursorPointerMove = (
     const rect = canvas.getBoundingClientRect()
 
     if (ResizeMultipleSelectObj.current) {
-        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntResizeElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntResizeElementObj,
+            curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox,
+            MoveMultipleSelectObj, ResizeMultipleSelectObj, panref)
         HandleResizeMultipleElementsMove(ResizeMultipleSelectObj, MultipleSelectedElements, setMultipleSelectedElements, setDimentionsMutipleSelectionBox, Elements, setElements, point)
     }
     if (curruntMultipleSelectObj.current) {
         handleMultipleSelectionFrameMove(Elements, point, curruntMultipleSelectObj, canvas, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, curruntMoveElementObj, curruntResizeElementObj, ResizeMultipleSelectObj)
-        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntResizeElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntResizeElementObj,
+            curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox,
+            MoveMultipleSelectObj, ResizeMultipleSelectObj, panref)
     }
     if (MoveMultipleSelectObj.current) {
         if (MoveMultipleSelectObj.current.movement === "Still") {
@@ -187,7 +192,9 @@ export const cursorPointerMove = (
             MoveMultipleSelectObj.current.movement = "Moved"
         }
         handleMultipleSelectMove(point, MoveMultipleSelectObj)
-        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntResizeElementObj, curruntMultipleSelectObj, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj,
+            curruntResizeElementObj, curruntMultipleSelectObj, MultipleSelectedElements,
+            DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj, panref)
     }
     if (curruntMoveElementObj.current) {
         if (curruntMoveElementObj.current.movement === "Still") {
@@ -197,7 +204,9 @@ export const cursorPointerMove = (
             curruntMoveElementObj.current.movement = "Moved"
         }
         moveElement(curruntMoveElementObj, point)
-        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntResizeElementObj, null, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj,
+            curruntResizeElementObj, null, MultipleSelectedElements, DimentionsMutipleSelectionBox,
+            MoveMultipleSelectObj, ResizeMultipleSelectObj, panref)
     }
     if (curruntResizeElementObj.current) {
         if (curruntResizeElementObj.current.movement === "Still") {
@@ -207,7 +216,8 @@ export const cursorPointerMove = (
             curruntResizeElementObj.current.movement = "Moved"
         }
         resizeElement(curruntResizeElementObj, point)
-        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntResizeElementObj, null, MultipleSelectedElements, DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj)
+        renderAll(ctx, Elements, rect, SelectedElement, curruntMoveElementObj, curruntResizeElementObj, null, MultipleSelectedElements,
+            DimentionsMutipleSelectionBox, MoveMultipleSelectObj, ResizeMultipleSelectObj, panref)
     }
     updateCursor(canvas, point, Elements, SelectedElement, MultipleSelectedElements, DimentionsMutipleSelectionBox)
 }

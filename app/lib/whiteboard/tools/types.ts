@@ -201,4 +201,13 @@ export type historyBlock = {
     selectedElement: Element | null,
     multipleSelectedElements: Element[] | null,
     multipleSelectedDimentions: DimentionsMultipleSelectBox | null
-} 
+}
+
+export type panObj = {
+    offSetX: number,
+    // offSetY: number,
+    startX: number | null,
+    // startY: number | null,
+    lastOffsetX: number,
+    // lastOffsetY: number
+}

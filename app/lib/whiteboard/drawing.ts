@@ -93,7 +93,7 @@ export function drawFreedraw(ctx: CanvasRenderingContext2D, Freedraw: FreedrawEl
 
 }
 
-export function drawRectangle(ctx: CanvasRenderingContext2D, rectangle: RectangleElement) {
+export function drawRectangle(ctx: CanvasRenderingContext2D, rectangle: RectangleElement, offsetX: number) {
 
     let { x, y, height, width, strokeColor, strokeStyle, strokeWidth, opacity, border, backgroundColor, fillStyle } = rectangle
 
@@ -114,11 +114,11 @@ export function drawRectangle(ctx: CanvasRenderingContext2D, rectangle: Rectangl
     ctx.lineCap = "round"
 
     if (border === "default") {
-        ctx.moveTo(x, y)
-        ctx.lineTo(x - width, y)
-        ctx.lineTo(x - width, y - height)
-        ctx.lineTo(x, y - height)
-        ctx.lineTo(x, y)
+        ctx.moveTo(x + offsetX, y)
+        ctx.lineTo((x + offsetX) - width, y)
+        ctx.lineTo((x + offsetX) - width, (y) - height)
+        ctx.lineTo((x + offsetX), (y) - height)
+        ctx.lineTo((x + offsetX), y)
 
         if (fillStyle === fillStyleEnum.Hachure) {
         }

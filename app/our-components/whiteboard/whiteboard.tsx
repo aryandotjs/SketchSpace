@@ -4,18 +4,17 @@ import React, { useEffect, useRef, useState } from "react";
 import { ToggleToolbar } from "./whiteboardtoolbar";
 import { Tool } from "@/app/lib/whiteboard/tools";
 import { pencilPointerDown, pencilPointerMove, pencilPointerUp } from "@/app/lib/whiteboard/tools/pencil";
-import { renderAll } from "@/app/lib/whiteboard/render";
+import { renderAll, renderForPan } from "@/app/lib/whiteboard/render";
 import { rectanglePointerDown, rectanglePointerMove, rectanglePointerUp } from "@/app/lib/whiteboard/tools/rectangle";
 import { ellipsePointerDown, ellipsePointerMove, ellipsePointerUp } from "@/app/lib/whiteboard/tools/ellipse";
 import {  linePointerDown, linePointerMove, linePointerUp } from "@/app/lib/whiteboard/tools/line";
 import { eraserHandler, eraserPointerUp } from "@/app/lib/whiteboard/tools/eraser";
 import { diamondPointerDown, diamondPointerMove, diamondPointerUp } from "@/app/lib/whiteboard/tools/diamond";
 import { arrowPointerDown, arrowPointerMove, arrowPointerUp } from "@/app/lib/whiteboard/tools/arrow";
-import { ArrowElement, BorderType, DiamondElement, DimentionsMultipleSelectBox, Element, EllipseElement, fillStyleEnum, FreedrawElement, historyBlock, LineElement, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, Point, RectangleElement, resizeEleObjType, StrokeStyle } from "@/app/lib/whiteboard/tools/types";
+import { ArrowElement, BorderType, DiamondElement, DimentionsMultipleSelectBox, Element, EllipseElement, fillStyleEnum, FreedrawElement, historyBlock, LineElement, MoveEleObjType, MoveMultipleEleObjType, MultipleResizeEleObjType, MultipleSelectObjType, panObj, Point, RectangleElement, resizeEleObjType, StrokeStyle } from "@/app/lib/whiteboard/tools/types";
 import { onPointdowmText } from "@/app/lib/whiteboard/tools/text";
 import { cursorPointerDown, cursorPointerMove, cursorPointerUp } from "@/app/interaction/cursor";
 import { handleKeydown } from "@/app/actions/handleKeydown";
-import { StyleCard } from "../stylecard/stylecard";
  
  
 export function Whiteboard() { 
@@ -32,7 +31,7 @@ export function Whiteboard() {
     const [fillType,setfillType] = useState<fillStyleEnum>(fillStyleEnum.Solid)
     const [strokewidth,setstrokewidth] = useState<string>("3.5")
     const [strokeStyle,setStrokeStyle] = useState<StrokeStyle>(StrokeStyle.Solid)
-    const [border,setborder] = useState<BorderType>("rounded")
+    const [border,setborder] = useState<BorderType>("default")
     const [opacity,setopacity] = useState<number>(100)
 
     const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -53,8 +52,16 @@ export function Whiteboard() {
     const currentPointRef = useRef<Point | null>(null)
     const undoref = useRef<historyBlock[]>([])
     const redoref = useRef<historyBlock[]>([])
+    const panRef = useRef<panObj>({
+                offSetX : 0,
+                // offSetY : 0,
+                startX:null ,
+                // startY:null ,
+                lastOffsetX:0,
+                // lastOffsetY:0
+            })
     
-    
+
     const ErasedElementIds = useRef<string[]|null>(null)
     
     const [editingText, setEditingText] = useState<{
@@ -104,7 +111,8 @@ export function Whiteboard() {
     
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0); 
     
-        renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
+        renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,
+            null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj,panRef)
         }; 
     
         resize(); 
@@ -129,7 +137,15 @@ export function Whiteboard() {
 
     const handlePointerDown = (event : React.PointerEvent) => {
         const point = getPoint(event)
-        
+         
+        if (tool === "Pan") {
+            panRef.current = {...panRef.current , 
+                startX : point.x ,
+                // startY : point.y ,
+                lastOffsetX:panRef.current.offSetX,
+                // lastOffsetY:panRef.current.offSetY
+            }
+        }
          if (tool === "Cursor") {
             cursorPointerDown(
                 event,
@@ -150,7 +166,6 @@ export function Whiteboard() {
                     undoref
             )
          }
-
         if (tool === "Line") {curruntLine.current = linePointerDown(point,strokeColor,Number(strokewidth),strokeStyle,opacity,backgroundColor) }
         if (tool === "Arrow") {curruntArrow.current = arrowPointerDown(point,strokeColor,Number(strokewidth),strokeStyle,opacity,backgroundColor) }
         if (tool === "Freedraw") {curruntStroke.current = pencilPointerDown(point,strokeColor,Number(strokewidth),strokeStyle,opacity,backgroundColor)}
@@ -185,7 +200,6 @@ export function Whiteboard() {
     }
 
     const handlePointerMove = (event : React.PointerEvent) => {
-
         const point = getPoint(event)
         currentPointRef.current = point
         const canvas = canvasRef.current
@@ -193,6 +207,17 @@ export function Whiteboard() {
         const ctx = canvas?.getContext("2d")
         if (!ctx) return;
         const rect = canvas.getBoundingClientRect();
+
+
+        if (panRef.current.startX !== null &&
+            //  panRef.current.startY !== null  &&
+              tool === "Pan") {
+            panRef.current.offSetX = panRef.current.lastOffsetX + (point.x - panRef.current.startX)
+            // panRef.current.offSetY = panRef.current.lastOffsetY + (point.y - panRef.current.startY)
+            // renderForPan(Elements,rect,ctx,panRef)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,
+            null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj,panRef)
+        }   
          
         if (tool === "Cursor") {
             cursorPointerMove(
@@ -211,34 +236,41 @@ export function Whiteboard() {
                 setDimentionsMutipleSelectionBox,
                 MoveMultipleSelectObj,
                 ResizeMultipleSelectObj,
-                undoref
-
+                undoref,
+                panRef
             )
         }
 
         if (curruntLine.current && tool === "Line") {
-            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,null,
+                MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj,panRef)
             linePointerMove(curruntLine,ctx,point)
         }
         if (curruntArrow.current && tool === "Arrow") {
-            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,
+                null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj,panRef)
             arrowPointerMove(curruntArrow,ctx,point)
         }
         if (curruntStroke.current && tool === "Freedraw") {
-            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,
+                curruntResizeElementObj,null,MultipleSelectedElements,
+                DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj,panRef)
             pencilPointerMove(curruntStroke,ctx,point)
         }
         
         if (curruntRectangle.current && tool === "Rectangle") {
-            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,
+                null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj,panRef)
             rectanglePointerMove(curruntRectangle,ctx,point)            
         }
         if (curruntDiamond.current && tool === "Diamond") {
-            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,
+                null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj,panRef)
             diamondPointerMove(curruntDiamond,ctx,point)            
         }
         if (curruntEllipse.current && tool === "Ellipse") {
-            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,null,MultipleSelectedElements,DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj)
+            renderAll(ctx,Elements,rect,SelectedElement,curruntMoveElementObj,curruntResizeElementObj,null,MultipleSelectedElements,
+                DimentionsMutipleSelectionBox,MoveMultipleSelectObj,ResizeMultipleSelectObj,panRef)
             ellipsePointerMove(curruntEllipse,ctx,point)            
         }
         if (ErasedElementIds.current && previousPointRef.current && tool === "Eraser") {
@@ -250,6 +282,15 @@ export function Whiteboard() {
     const handlePointerUp = (event: React.PointerEvent)=>{
         if (!canvasRef.current) return;
         
+        if (tool === "Pan") {
+            panRef.current = {...panRef.current ,
+                 startX :null ,
+                //  startY :null ,
+                 lastOffsetX : panRef.current.offSetX,
+                //  lastOffsetY : panRef.current.offSetY
+                }
+        }
+
         if(tool === "Cursor"){ cursorPointerUp(Elements,setElements ,
             curruntResizeElementObj,
             curruntMoveElementObj,
@@ -264,9 +305,8 @@ export function Whiteboard() {
             MoveMultipleSelectObj,
             ResizeMultipleSelectObj,
             undoref,
-            redoref
+            redoref,
         )}
-
         if (tool === "Line") { linePointerUp(curruntLine,setElements,settool, setSelectedElement,Elements,undoref,redoref) }
         if (tool === "Arrow") { arrowPointerUp(curruntArrow,setElements,settool,setSelectedElement,Elements,undoref,redoref) }
         if (tool === "Freedraw") { pencilPointerUp(curruntStroke,setElements,Elements,undoref,redoref) }
@@ -281,6 +321,7 @@ export function Whiteboard() {
    
     return ( <div className="h-full w-full relative">
         <div className="fixed top-0 left-0 bg-gray-950 text-red-600 gap text-xs">
+            <div> Tool : {tool} </div> 
             <div> selected ele id : {SelectedElement?.id} </div> 
             <div> elements length : {Elements.length} </div>
             <div> multiple selected length :{MultipleSelectedElements?.length}</div>
