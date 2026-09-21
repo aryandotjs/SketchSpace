@@ -17,9 +17,9 @@ export const renderAll = (
     ResizeMultipleSelectObj: React.RefObject<MultipleResizeEleObjType | null>,
     panRef: React.RefObject<panObj>
 ) => {
-    ctx.setTransform(1, 0, 0, 1, 0, 0)
+    // ctx.setTransform(1, 0, 0, 1, 0, 0)
     ctx.clearRect(0, 0, rect.width, rect.height)
-    ctx.translate(panRef.current.offSetX, 0)
+    // ctx.translate(panRef.current.offSetX, 0)
     Elements.forEach((el) => {
         if (el.type === "line") {
             drawLine(ctx, el)
