@@ -38,7 +38,7 @@ export const rectanglePointerMove = (
     if (!Rectangle) return;
     Rectangle.height = Rectangle.y - point.y
     Rectangle.width = Rectangle.x - point.x
-    drawRectangle(ctx, Rectangle);
+    // drawRectangle(ctx, Rectangle);
 }
 
 

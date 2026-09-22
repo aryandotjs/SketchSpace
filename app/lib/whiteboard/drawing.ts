@@ -26,7 +26,7 @@ export function drawLine(ctx: CanvasRenderingContext2D, line: LineElement) {
 
 export function drawArrow(ctx: CanvasRenderingContext2D, arrow: ArrowElement) {
 
-    let { x, y, height, width, strokeColor, strokeStyle, strokeWidth, opacity } = arrow
+    let { x, y, height, width, strokeColor, strokeStyle, strokeWidth, opacity, border } = arrow
 
     if (!height && !width) return
     const dx = width
@@ -53,18 +53,57 @@ export function drawArrow(ctx: CanvasRenderingContext2D, arrow: ArrowElement) {
     ctx.lineJoin = "round"
     ctx.lineCap = "round"
 
-    ctx.moveTo(x, y)
-    ctx.lineTo(x - width, y - height)
 
-    ctx.moveTo(x - width, y - height)
-    ctx.lineTo(ax, ay)
 
-    ctx.moveTo(x - width, y - height)
-    ctx.lineTo(bx, by)
+    if (border === "default") {
+        ctx.moveTo(x, y)
+        ctx.lineTo(x - width, y - height)
 
-    ctx.stroke()
-    ctx.setLineDash([0, 0]);
-    ctx.globalAlpha = 1
+        ctx.moveTo(x - width, y - height)
+        ctx.lineTo(ax, ay)
+
+        ctx.moveTo(x - width, y - height)
+        ctx.lineTo(bx, by)
+
+        ctx.stroke()
+        ctx.setLineDash([0, 0]);
+        ctx.globalAlpha = 1
+    }
+    if (border === "rounded") {
+        ctx.moveTo(x + radius, y)
+        ctx.lineTo(x - width - radius, y)
+        ctx.quadraticCurveTo(
+            x - width,
+            y,
+            x - width,
+            y + radius
+        )
+        ctx.lineTo(x - width, y - height - radius)
+        ctx.quadraticCurveTo(
+            x - width,
+            y - height,
+            x - width - radius,
+            y - height
+        )
+        ctx.lineTo(x + radius, y - height)
+        ctx.quadraticCurveTo(
+            x,
+            y - height,
+            x,
+            y - height - radius
+        )
+        ctx.lineTo(x, y + radius)
+        ctx.quadraticCurveTo(
+            x,
+            y,
+            x + radius,
+            y
+        )
+        ctx.fill()
+        ctx.stroke()
+        ctx.setLineDash([0, 0]);
+        ctx.globalAlpha = 1
+    }
 
 
 }
